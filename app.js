@@ -1,17 +1,15 @@
-import { createClient } from
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-
 // ============================================================
 // SUPABASE
 // ============================================================
+
+import { createClient } from
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL =
   "https://glpkadgmsaozmcebyrxw.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_UYD86Z2gQD5o8BMfuP5IHw__bIcUX0C";
-
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -27,61 +25,129 @@ const supabase = createClient(
 
 
 // ============================================================
-// ELEMENTS
+// NOBLUR
+// ============================================================
+
+const { normalizeContainer } = await import(
+  "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-normalize.mjs"
+);
+
+
+// ============================================================
+// HELPER
 // ============================================================
 
 const $ = (id) =>
   document.getElementById(id);
 
 
-// AUTH
-const loginBox = $("loginBox");
-const accountBox = $("accountBox");
+// ============================================================
+// AUTH ELEMENTS
+// ============================================================
 
-const authEmail = $("authEmail");
-const authPassword = $("authPassword");
+const loginBox =
+  $("loginBox");
 
-const signUpBtn = $("signUpBtn");
-const loginBtn = $("loginBtn");
-const logoutBtn = $("logoutBtn");
+const accountBox =
+  $("accountBox");
 
-const authStatus = $("authStatus");
-const accountEmail = $("accountEmail");
-const premiumStatus = $("premiumStatus");
+const authEmail =
+  $("authEmail");
 
+const authPassword =
+  $("authPassword");
 
-// VIDEO
-const fileInput = $("fileInput");
-const pickBtn = $("pickBtn");
+const signUpBtn =
+  $("signUpBtn");
 
-const filePanel = $("filePanel");
-const preview = $("preview");
+const loginBtn =
+  $("loginBtn");
 
-const fileName = $("fileName");
-const fileStats = $("fileStats");
-const fileSize = $("fileSize");
+const logoutBtn =
+  $("logoutBtn");
 
-const removeBtn = $("removeBtn");
+const authStatus =
+  $("authStatus");
 
+const accountEmail =
+  $("accountEmail");
 
-// PATCH
-const processBtn = $("processBtn");
-const processText = $("processText");
-const spinner = $("spinner");
-
-const progressBox = $("progressBox");
-const status = $("status");
-const percent = $("percent");
-const barFill = $("barFill");
+const premiumStatus =
+  $("premiumStatus");
 
 
+// ============================================================
+// VIDEO ELEMENTS
+// ============================================================
+
+const fileInput =
+  $("fileInput");
+
+const pickBtn =
+  $("pickBtn");
+
+const filePanel =
+  $("filePanel");
+
+const preview =
+  $("preview");
+
+const fileName =
+  $("fileName");
+
+const fileStats =
+  $("fileStats");
+
+const fileSize =
+  $("fileSize");
+
+const removeBtn =
+  $("removeBtn");
+
+
+// ============================================================
+// PATCH ELEMENTS
+// ============================================================
+
+const processBtn =
+  $("processBtn");
+
+const processText =
+  $("processText");
+
+const spinner =
+  $("spinner");
+
+const progressBox =
+  $("progressBox");
+
+const status =
+  $("status");
+
+const percent =
+  $("percent");
+
+const barFill =
+  $("barFill");
+
+
+// ============================================================
 // RESULT
-const result = $("result");
-const resultMeta = $("resultMeta");
+// ============================================================
+
+const result =
+  $("result");
+
+const resultMeta =
+  $("resultMeta");
 
 
+// ============================================================
 // DOWNLOAD
-const downloadBtn = $("downloadBtn");
+// ============================================================
+
+const downloadBtn =
+  $("downloadBtn");
 
 const downloadProgress =
   $("downloadProgress");
@@ -99,11 +165,18 @@ const downloadDone =
   $("downloadDone");
 
 
+// ============================================================
 // ERROR
-const errorBox = $("error");
+// ============================================================
+
+const errorBox =
+  $("error");
 
 
+// ============================================================
 // TIKTOK
+// ============================================================
+
 const tiktokStudioBtn =
   $("tiktokStudioBtn");
 
@@ -112,23 +185,38 @@ const tiktokStudioBtn =
 // STATE
 // ============================================================
 
-let currentUser = null;
-let currentProfile = null;
+let currentUser =
+  null;
 
-let selectedFile = null;
+let currentProfile =
+  null;
 
-let outputBlob = null;
-let outputName = "";
+let selectedFile =
+  null;
+
+let outputBlob =
+  null;
+
+let outputName =
+  "";
+
+let previewURL =
+  null;
+
+let outputURL =
+  null;
 
 
 // ============================================================
 // AUTH MESSAGE
 // ============================================================
 
-function setAuthMessage(
+function authMessage(
   message,
   success = false
 ) {
+
+  if (!authStatus) return;
 
   authStatus.textContent =
     message;
@@ -146,6 +234,8 @@ function setAuthMessage(
 
 function showError(message) {
 
+  if (!errorBox) return;
+
   errorBox.textContent =
     message;
 
@@ -157,6 +247,8 @@ function showError(message) {
 
 function clearError() {
 
+  if (!errorBox) return;
+
   errorBox.textContent =
     "";
 
@@ -167,7 +259,7 @@ function clearError() {
 
 
 // ============================================================
-// FORMAT
+// FORMAT BYTES
 // ============================================================
 
 function formatBytes(bytes) {
@@ -187,24 +279,35 @@ function formatBytes(bytes) {
     "GB"
   ];
 
-  const i = Math.floor(
-    Math.log(bytes) /
-    Math.log(1024)
-  );
+  const index =
+    Math.min(
+      Math.floor(
+        Math.log(bytes) /
+        Math.log(1024)
+      ),
+      units.length - 1
+    );
 
   const value =
     bytes /
-    Math.pow(1024, i);
+    Math.pow(
+      1024,
+      index
+    );
 
   return (
     value.toFixed(
-      i === 0 ? 0 : 2
+      index === 0 ? 0 : 2
     )
     + " "
-    + units[i]
+    + units[index]
   );
 }
 
+
+// ============================================================
+// FORMAT DURATION
+// ============================================================
 
 function formatDuration(seconds) {
 
@@ -213,21 +316,28 @@ function formatDuration(seconds) {
   }
 
   const minutes =
-    Math.floor(seconds / 60);
+    Math.floor(
+      seconds / 60
+    );
 
   const secs =
-    Math.floor(seconds % 60);
+    Math.floor(
+      seconds % 60
+    );
 
   return (
     minutes +
     ":" +
-    String(secs).padStart(2, "0")
+    String(secs).padStart(
+      2,
+      "0"
+    )
   );
 }
 
 
 // ============================================================
-// ACCESS
+// ACCESS CHECK
 // ============================================================
 
 function hasAccess() {
@@ -240,57 +350,15 @@ function hasAccess() {
     return false;
   }
 
-  return (
+  const expiry =
     new Date(
       currentProfile.premium_until
-    ).getTime() > Date.now()
+    ).getTime();
+
+  return (
+    Number.isFinite(expiry) &&
+    expiry > Date.now()
   );
-}
-
-
-// ============================================================
-// PATCH BUTTON
-// ============================================================
-
-function updatePatchButton() {
-
-  if (!currentUser) {
-
-    processBtn.disabled = true;
-
-    processText.textContent =
-      "LOGIN TO PATCH";
-
-    return;
-  }
-
-
-  if (!hasAccess()) {
-
-    processBtn.disabled = true;
-
-    processText.textContent =
-      "ACCESS EXPIRED";
-
-    return;
-  }
-
-
-  if (!selectedFile) {
-
-    processBtn.disabled = true;
-
-    processText.textContent =
-      "SELECT VIDEO";
-
-    return;
-  }
-
-
-  processBtn.disabled = false;
-
-  processText.textContent =
-    "PATCH VIDEO";
 }
 
 
@@ -300,142 +368,126 @@ function updatePatchButton() {
 
 async function loadProfile(userId) {
 
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    currentProfile =
+      data || null;
 
 
-  if (error) {
+    if (!data) {
+
+      premiumStatus.textContent =
+        "⚠️ Profile not found";
+
+      updatePatchButton();
+
+      return;
+    }
+
+
+    const expiry =
+      data.premium_until
+        ? new Date(
+            data.premium_until
+          )
+        : null;
+
+
+    if (
+      expiry &&
+      expiry.getTime() > Date.now()
+    ) {
+
+      const plan =
+        data.plan ||
+        "Free";
+
+
+      if (
+        String(plan).toLowerCase()
+        === "free"
+      ) {
+
+        premiumStatus.textContent =
+          `🆓 Free • until ${expiry.toLocaleString()}`;
+
+      } else {
+
+        premiumStatus.textContent =
+          `👑 ${plan} • until ${expiry.toLocaleString()}`;
+      }
+
+    } else {
+
+      premiumStatus.textContent =
+        "🔒 Access expired";
+    }
+
+
+    updatePatchButton();
+
+  } catch (error) {
 
     console.error(
       "PROFILE ERROR:",
       error
     );
 
-    currentProfile = null;
+    currentProfile =
+      null;
 
     premiumStatus.textContent =
       "Profile error";
 
     updatePatchButton();
-
-    return;
   }
+}
 
 
-  currentProfile =
-    data;
+// ============================================================
+// UPDATE USER UI
+// ============================================================
+
+async function updateUser(user) {
+
+  currentUser =
+    user || null;
 
 
-  if (!data) {
+  if (!currentUser) {
+
+    loginBox.classList.remove(
+      "hidden"
+    );
+
+    accountBox.classList.add(
+      "hidden"
+    );
+
+    currentProfile =
+      null;
 
     premiumStatus.textContent =
-      "Free access not configured";
+      "Login required";
 
     updatePatchButton();
 
     return;
   }
-
-
-  if (hasAccess()) {
-
-    const expiry =
-      new Date(
-        data.premium_until
-      );
-
-
-    const plan =
-      data.plan || "Free";
-
-
-    if (
-      String(plan).toLowerCase()
-      === "free"
-    ) {
-
-      premiumStatus.textContent =
-        `🆓 Free • until ${expiry.toLocaleString()}`;
-
-    } else {
-
-      premiumStatus.textContent =
-        `👑 ${plan} • until ${expiry.toLocaleString()}`;
-    }
-
-  } else {
-
-    premiumStatus.textContent =
-      "🔒 Access expired";
-  }
-
-
-  updatePatchButton();
-}
-
-
-// ============================================================
-// CREATE FREE PROFILE
-// ============================================================
-
-async function createFreeProfile(user) {
-
-  /*
-   * Free access = 2 days.
-   */
-
-  const freeUntil =
-    new Date(
-      Date.now() +
-      2 * 24 * 60 * 60 * 1000
-    ).toISOString();
-
-
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from("profiles")
-      .insert({
-        id: user.id,
-        plan: "Free",
-        premium_until: freeUntil
-      })
-      .select()
-      .single();
-
-
-  if (error) {
-
-    console.error(
-      "CREATE PROFILE ERROR:",
-      error
-    );
-
-    return null;
-  }
-
-
-  return data;
-}
-
-
-// ============================================================
-// SHOW ACCOUNT
-// ============================================================
-
-async function showAccount(user) {
-
-  currentUser =
-    user;
 
 
   loginBox.classList.add(
@@ -448,36 +500,13 @@ async function showAccount(user) {
 
 
   accountEmail.textContent =
-    user.email || "User";
+    currentUser.email ||
+    "User";
 
 
   await loadProfile(
-    user.id
+    currentUser.id
   );
-}
-
-
-// ============================================================
-// SHOW LOGIN
-// ============================================================
-
-function showLogin() {
-
-  currentUser = null;
-  currentProfile = null;
-
-  loginBox.classList.remove(
-    "hidden"
-  );
-
-  accountBox.classList.add(
-    "hidden"
-  );
-
-  premiumStatus.textContent =
-    "Login required";
-
-  updatePatchButton();
 }
 
 
@@ -491,7 +520,6 @@ signUpBtn.addEventListener(
 
     clearError();
 
-
     const email =
       authEmail.value.trim();
 
@@ -501,9 +529,11 @@ signUpBtn.addEventListener(
 
     if (!email) {
 
-      setAuthMessage(
+      authMessage(
         "Please enter your email."
       );
+
+      authEmail.focus();
 
       return;
     }
@@ -511,9 +541,11 @@ signUpBtn.addEventListener(
 
     if (!password) {
 
-      setAuthMessage(
+      authMessage(
         "Please enter your password."
       );
+
+      authPassword.focus();
 
       return;
     }
@@ -521,7 +553,7 @@ signUpBtn.addEventListener(
 
     if (password.length < 6) {
 
-      setAuthMessage(
+      authMessage(
         "Password must be at least 6 characters."
       );
 
@@ -529,14 +561,17 @@ signUpBtn.addEventListener(
     }
 
 
-    signUpBtn.disabled = true;
-    loginBtn.disabled = true;
+    signUpBtn.disabled =
+      true;
+
+    loginBtn.disabled =
+      true;
 
     signUpBtn.textContent =
       "CREATING...";
 
 
-    setAuthMessage(
+    authMessage(
       "Creating account..."
     );
 
@@ -558,57 +593,21 @@ signUpBtn.addEventListener(
       }
 
 
-      console.log(
-        "SIGN UP RESULT:",
-        data
-      );
+      if (data.session) {
 
-
-      /*
-       * If Confirm Email is OFF,
-       * Supabase returns a session.
-       */
-
-      if (data.session && data.user) {
-
-        /*
-         * Try to create Free profile.
-         */
-
-        let profile =
-          await loadProfile(
-            data.user.id
-          );
-
-
-        if (!profile) {
-
-          await createFreeProfile(
-            data.user
-          );
-
-        }
-
-
-        await showAccount(
+        await updateUser(
           data.user
         );
 
-
-        setAuthMessage(
-          "Account created successfully ✓",
+        authMessage(
+          "Account created ✓",
           true
         );
 
-
       } else {
 
-        /*
-         * Confirm Email is probably ON.
-         */
-
-        setAuthMessage(
-          "Account created. Please confirm your email, then LOGIN.",
+        authMessage(
+          "Account created. Please login.",
           true
         );
       }
@@ -621,22 +620,22 @@ signUpBtn.addEventListener(
         error
       );
 
-
-      setAuthMessage(
-        error.message ||
+      authMessage(
+        error?.message ||
         "Sign up failed."
       );
 
-
     } finally {
 
-      signUpBtn.disabled = false;
-      loginBtn.disabled = false;
+      signUpBtn.disabled =
+        false;
+
+      loginBtn.disabled =
+        false;
 
       signUpBtn.textContent =
         "SIGN UP";
     }
-
   }
 );
 
@@ -651,7 +650,6 @@ loginBtn.addEventListener(
 
     clearError();
 
-
     const email =
       authEmail.value.trim();
 
@@ -661,9 +659,11 @@ loginBtn.addEventListener(
 
     if (!email) {
 
-      setAuthMessage(
+      authMessage(
         "Please enter your email."
       );
+
+      authEmail.focus();
 
       return;
     }
@@ -671,22 +671,27 @@ loginBtn.addEventListener(
 
     if (!password) {
 
-      setAuthMessage(
+      authMessage(
         "Please enter your password."
       );
+
+      authPassword.focus();
 
       return;
     }
 
 
-    loginBtn.disabled = true;
-    signUpBtn.disabled = true;
+    loginBtn.disabled =
+      true;
+
+    signUpBtn.disabled =
+      true;
 
     loginBtn.textContent =
       "LOGGING IN...";
 
 
-    setAuthMessage(
+    authMessage(
       "Logging in..."
     );
 
@@ -704,36 +709,25 @@ loginBtn.addEventListener(
           });
 
 
-      console.log(
-        "LOGIN RESULT:",
-        data,
-        error
-      );
-
-
       if (error) {
         throw error;
       }
 
 
-      if (!data.user) {
+      if (!data?.user) {
 
         throw new Error(
-          "User account not found."
+          "Login failed."
         );
       }
 
 
-      /*
-       * LOGIN SUCCESS
-       */
-
-      await showAccount(
+      await updateUser(
         data.user
       );
 
 
-      setAuthMessage(
+      authMessage(
         "Login successful ✓",
         true
       );
@@ -746,39 +740,22 @@ loginBtn.addEventListener(
         error
       );
 
-
-      let message =
-        error.message ||
-        "Login failed.";
-
-
-      if (
-        message
-          .toLowerCase()
-          .includes(
-            "email not confirmed"
-          )
-      ) {
-
-        message =
-          "Email is not confirmed. Please confirm your email first.";
-      }
-
-
-      setAuthMessage(
-        message
+      authMessage(
+        error?.message ||
+        "Login failed."
       );
-
 
     } finally {
 
-      loginBtn.disabled = false;
-      signUpBtn.disabled = false;
+      loginBtn.disabled =
+        false;
+
+      signUpBtn.disabled =
+        false;
 
       loginBtn.textContent =
         "LOGIN";
     }
-
   }
 );
 
@@ -791,25 +768,70 @@ logoutBtn.addEventListener(
   "click",
   async () => {
 
-    await supabase.auth.signOut();
+    try {
 
-    showLogin();
+      await supabase.auth.signOut();
 
-    authEmail.value = "";
-    authPassword.value = "";
+    } catch (error) {
 
-    setAuthMessage(
-      "Logged out."
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
+    }
+
+
+    currentUser =
+      null;
+
+    currentProfile =
+      null;
+
+    selectedFile =
+      null;
+
+    fileInput.value =
+      "";
+
+    filePanel.classList.add(
+      "hidden"
+    );
+
+    resetOutput();
+
+    await updateUser(
+      null
     );
   }
 );
 
 
 // ============================================================
-// SESSION
+// AUTH SESSION
 // ============================================================
 
-async function checkSession() {
+supabase.auth.onAuthStateChange(
+  (_event, session) => {
+
+    setTimeout(
+      async () => {
+
+        await updateUser(
+          session?.user || null
+        );
+
+      },
+      0
+    );
+  }
+);
+
+
+// ============================================================
+// INITIAL SESSION
+// ============================================================
+
+async function initAuth() {
 
   try {
 
@@ -817,166 +839,199 @@ async function checkSession() {
       data,
       error
     } =
-      await supabase.auth
-        .getSession();
+      await supabase.auth.getSession();
 
 
     if (error) {
-
-      console.error(
-        "SESSION ERROR:",
-        error
-      );
-
-      showLogin();
-
-      return;
+      throw error;
     }
 
 
-    if (data.session?.user) {
-
-      await showAccount(
-        data.session.user
-      );
-
-    } else {
-
-      showLogin();
-    }
-
+    await updateUser(
+      data.session?.user || null
+    );
 
   } catch (error) {
 
     console.error(
-      "SESSION CHECK ERROR:",
+      "AUTH INIT ERROR:",
       error
     );
+  }
+}
 
-    showLogin();
+
+await initAuth();
+
+
+// ============================================================
+// PATCH BUTTON
+// ============================================================
+
+function updatePatchButton() {
+
+  if (!currentUser) {
+
+    processBtn.disabled =
+      true;
+
+    processText.textContent =
+      "LOGIN TO PATCH";
+
+    return;
+  }
+
+
+  if (!hasAccess()) {
+
+    processBtn.disabled =
+      true;
+
+    processText.textContent =
+      "ACCESS EXPIRED";
+
+    return;
+  }
+
+
+  if (!selectedFile) {
+
+    processBtn.disabled =
+      true;
+
+    processText.textContent =
+      "SELECT VIDEO";
+
+    return;
+  }
+
+
+  processBtn.disabled =
+    false;
+
+  processText.textContent =
+    "PATCH VIDEO";
+}
+
+
+// ============================================================
+// PATCH PROGRESS
+// ============================================================
+
+function setProgress(
+  value,
+  message
+) {
+
+  const v =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(value)
+      )
+    );
+
+
+  percent.textContent =
+    `${v}%`;
+
+  barFill.style.width =
+    `${v}%`;
+
+
+  if (message) {
+    status.textContent =
+      message;
   }
 }
 
 
 // ============================================================
-// AUTH STATE
+// DOWNLOAD PROGRESS
 // ============================================================
 
-supabase.auth.onAuthStateChange(
-  (_event, session) => {
+function setDownloadProgress(
+  value,
+  message
+) {
 
-    if (session?.user) {
+  const v =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(value)
+      )
+    );
 
-      showAccount(
-        session.user
-      );
 
-    } else {
+  downloadPercent.textContent =
+    `${v}%`;
 
-      showLogin();
-    }
+  downloadBarFill.style.width =
+    `${v}%`;
 
+
+  if (message) {
+    downloadStatus.textContent =
+      message;
   }
-);
+}
 
 
 // ============================================================
-// INITIALIZE AUTH
+// RESET OUTPUT
 // ============================================================
 
-await checkSession();
+function resetOutput() {
 
+  if (outputURL) {
 
-// ============================================================
-// PLANS
-// ============================================================
+    URL.revokeObjectURL(
+      outputURL
+    );
 
-const PLAN_DATA = {
-
-  week: {
-    title: "⭐ 1 Week",
-    amount: 2
-  },
-
-  month: {
-    title: "🔥 1 Month",
-    amount: 5
-  },
-
-  three_month: {
-    title: "💎 3 Months",
-    amount: 9
-  },
-
-  six_month: {
-    title: "👑 6 Months",
-    amount: 19
-  },
-
-  year: {
-    title: "🏆 1 Year",
-    amount: 29
+    outputURL =
+      null;
   }
 
-};
+
+  outputBlob =
+    null;
+
+  outputName =
+    "";
 
 
-document
-  .querySelectorAll(".plan")
-  .forEach(
-    (button) => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const plan =
-            button.dataset.plan;
-
-
-          if (plan === "free") {
-
-            alert(
-              "🆓 Free\n\n2 Days"
-            );
-
-            return;
-          }
-
-
-          if (!currentUser) {
-
-            alert(
-              "Please LOGIN first."
-            );
-
-            return;
-          }
-
-
-          const selected =
-            PLAN_DATA[plan];
-
-
-          if (!selected) {
-            return;
-          }
-
-
-          /*
-           * Payment will be connected
-           * to the server/payment gateway.
-           */
-
-          alert(
-            `${selected.title}\n\nPayment: $${selected.amount}\n\nPayment gateway will be connected here.`
-          );
-
-        }
-      );
-
-    }
+  result.classList.add(
+    "hidden"
   );
+
+  progressBox.classList.add(
+    "hidden"
+  );
+
+  downloadProgress.classList.add(
+    "hidden"
+  );
+
+
+  setProgress(
+    0,
+    "Preparing..."
+  );
+
+
+  setDownloadProgress(
+    0,
+    "Preparing download..."
+  );
+
+
+  downloadDone.textContent =
+    "Preparing video...";
+}
 
 
 // ============================================================
@@ -1045,10 +1100,11 @@ fileInput.addEventListener(
     ) {
 
       showError(
-        "Only MP4 and MOV videos are supported."
+        "Please select MP4 or MOV."
       );
 
-      fileInput.value = "";
+      fileInput.value =
+        "";
 
       return;
     }
@@ -1071,18 +1127,22 @@ fileInput.addEventListener(
       );
 
 
-    if (preview.src) {
+    if (previewURL) {
 
       URL.revokeObjectURL(
-        preview.src
+        previewURL
       );
     }
 
 
-    preview.src =
+    previewURL =
       URL.createObjectURL(
         file
       );
+
+
+    preview.src =
+      previewURL;
 
 
     filePanel.classList.remove(
@@ -1095,7 +1155,6 @@ fileInput.addEventListener(
 
         fileStats.textContent =
           `${preview.videoWidth}×${preview.videoHeight} • ${formatDuration(preview.duration)}`;
-
       };
 
 
@@ -1120,11 +1179,14 @@ removeBtn.addEventListener(
       "";
 
 
-    if (preview.src) {
+    if (previewURL) {
 
       URL.revokeObjectURL(
-        preview.src
+        previewURL
       );
+
+      previewURL =
+        null;
     }
 
 
@@ -1145,118 +1207,6 @@ removeBtn.addEventListener(
     updatePatchButton();
   }
 );
-
-
-// ============================================================
-// PATCH PROGRESS
-// ============================================================
-
-function setProgress(
-  value,
-  message
-) {
-
-  const v =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        Math.round(value)
-      )
-    );
-
-
-  percent.textContent =
-    `${v}%`;
-
-
-  barFill.style.width =
-    `${v}%`;
-
-
-  if (message) {
-
-    status.textContent =
-      message;
-  }
-}
-
-
-// ============================================================
-// DOWNLOAD PROGRESS
-// ============================================================
-
-function setDownloadProgress(
-  value,
-  message
-) {
-
-  const v =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        Math.round(value)
-      )
-    );
-
-
-  downloadPercent.textContent =
-    `${v}%`;
-
-
-  downloadBarFill.style.width =
-    `${v}%`;
-
-
-  if (message) {
-
-    downloadStatus.textContent =
-      message;
-  }
-}
-
-
-// ============================================================
-// RESET OUTPUT
-// ============================================================
-
-function resetOutput() {
-
-  outputBlob = null;
-  outputName = "";
-
-
-  result.classList.add(
-    "hidden"
-  );
-
-
-  progressBox.classList.add(
-    "hidden"
-  );
-
-
-  downloadProgress.classList.add(
-    "hidden"
-  );
-
-
-  setProgress(
-    0,
-    "Preparing..."
-  );
-
-
-  setDownloadProgress(
-    0,
-    "Preparing download..."
-  );
-
-
-  downloadDone.textContent =
-    "Preparing video...";
-}
 
 
 // ============================================================
@@ -1293,7 +1243,7 @@ processBtn.addEventListener(
     if (!selectedFile) {
 
       showError(
-        "Please select a video."
+        "Please select video."
       );
 
       return;
@@ -1306,7 +1256,6 @@ processBtn.addEventListener(
     processText.textContent =
       "PATCHING...";
 
-
     spinner.classList.remove(
       "hidden"
     );
@@ -1316,7 +1265,6 @@ processBtn.addEventListener(
       "hidden"
     );
 
-
     result.classList.add(
       "hidden"
     );
@@ -1325,26 +1273,7 @@ processBtn.addEventListener(
     try {
 
       setProgress(
-        2,
-        "Loading patch engine..."
-      );
-
-
-      /*
-       * IMPORTANT:
-       * NoBlur loads ONLY here.
-       */
-
-      const {
-        normalizeContainer
-      } =
-        await import(
-          "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-normalize.mjs"
-        );
-
-
-      setProgress(
-        10,
+        5,
         "Reading video..."
       );
 
@@ -1354,8 +1283,8 @@ processBtn.addEventListener(
 
 
       setProgress(
-        30,
-        "Normalizing video..."
+        25,
+        "Normalizing MP4..."
       );
 
 
@@ -1399,4 +1328,90 @@ processBtn.addEventListener(
         normalized.newBytes;
 
 
-      if (!fin
+      outputBlob =
+        new Blob(
+          [finalBytes],
+          {
+            type:
+              "video/mp4"
+          }
+        );
+
+
+      const base =
+        selectedFile.name.replace(
+          /\.(mp4|mov)$/i,
+          ""
+        );
+
+
+      outputName =
+        `${base}_TL-NoBlur.mp4`;
+
+
+      setProgress(
+        90,
+        "Finalizing..."
+      );
+
+
+      await new Promise(
+        resolve =>
+          setTimeout(
+            resolve,
+            150
+          )
+      );
+
+
+      setProgress(
+        100,
+        "Patch complete ✓"
+      );
+
+
+      resultMeta.textContent =
+        `${formatBytes(outputBlob.size)} • Ready to download`;
+
+
+      result.classList.remove(
+        "hidden"
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "PATCH ERROR:",
+        error
+      );
+
+
+      showError(
+        error?.message ||
+        "Patch failed."
+      );
+
+
+      progressBox.classList.add(
+        "hidden"
+      );
+
+
+    } finally {
+
+      processBtn.disabled =
+        false;
+
+      spinner.classList.add(
+        "hidden"
+      );
+
+
+      updatePatchButton();
+    }
+  }
+);
+
+
+// =============================================
