@@ -1,0 +1,5 @@
+TL NoBlur uses the client-side MP4 patching implementation from:
+
+https://github.com/irgifebry/NoBlur
+
+The upstream project documents its Inflate (Non-Interpolation) pipeline and source files there.
