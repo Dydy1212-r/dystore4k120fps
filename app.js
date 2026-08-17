@@ -1,6 +1,5 @@
 // ============================================================
 // TL NoBlur - app.js
-// Login + Premium Plans + ABA Payment Trigger + Video Patcher
 // ============================================================
 
 import { createClient } from
@@ -32,106 +31,160 @@ const supabase = createClient(
 
 
 // ============================================================
-// NO BLUR MODULES
+// NO BLUR
 // ============================================================
 
 const { normalizeContainer } = await import(
   "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-normalize.mjs"
 );
 
-const { inflateSampleTableVideo } = await import(
-  "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-inflate.mjs"
-);
+
+// ============================================================
+// ELEMENT HELPER
+// ============================================================
+
+const $ = (id) =>
+  document.getElementById(id);
 
 
 // ============================================================
-// HELPERS
+// AUTH
 // ============================================================
 
-const $ = (id) => document.getElementById(id);
+const loginBox =
+  $("loginBox");
 
+const accountBox =
+  $("accountBox");
 
-// ============================================================
-// AUTH ELEMENTS
-// ============================================================
+const authEmail =
+  $("authEmail");
 
-const loginBox = $("loginBox");
-const accountBox = $("accountBox");
+const authPassword =
+  $("authPassword");
 
-const authEmail = $("authEmail");
-const authPassword = $("authPassword");
+const signUpBtn =
+  $("signUpBtn");
 
-const signUpBtn = $("signUpBtn");
-const loginBtn = $("loginBtn");
-const logoutBtn = $("logoutBtn");
+const loginBtn =
+  $("loginBtn");
 
-const authStatus = $("authStatus");
-const accountEmail = $("accountEmail");
-const premiumStatus = $("premiumStatus");
+const logoutBtn =
+  $("logoutBtn");
 
+const authStatus =
+  $("authStatus");
 
-// ============================================================
-// PLAN ELEMENTS
-// ============================================================
+const accountEmail =
+  $("accountEmail");
 
-const plans = document.querySelectorAll(".plan");
-
-const paymentOverlay = $("paymentOverlay");
-const selectedPlanName = $("selectedPlanName");
-const selectedPlanAmount = $("selectedPlanAmount");
-
-const confirmPaymentBtn = $("confirmPaymentBtn");
-const cancelPaymentBtn = $("cancelPaymentBtn");
-
-let selectedPlanId = null;
+const premiumStatus =
+  $("premiumStatus");
 
 
 // ============================================================
-// VIDEO ELEMENTS
+// VIDEO
 // ============================================================
 
-const fileInput = $("fileInput");
-const pickBtn = $("pickBtn");
+const fileInput =
+  $("fileInput");
 
-const filePanel = $("filePanel");
-const preview = $("preview");
+const pickBtn =
+  $("pickBtn");
 
-const fileName = $("fileName");
-const fileStats = $("fileStats");
-const fileSize = $("fileSize");
+const filePanel =
+  $("filePanel");
 
-const removeBtn = $("removeBtn");
+const preview =
+  $("preview");
 
-const processBtn = $("processBtn");
-const processText = $("processText");
-const spinner = $("spinner");
+const fileName =
+  $("fileName");
+
+const fileStats =
+  $("fileStats");
+
+const fileSize =
+  $("fileSize");
+
+const removeBtn =
+  $("removeBtn");
 
 
 // ============================================================
-// PATCH PROGRESS
+// PATCH
 // ============================================================
 
-const progressBox = $("progressBox");
-const status = $("status");
-const percent = $("percent");
-const barFill = $("barFill");
+const processBtn =
+  $("processBtn");
+
+const processText =
+  $("processText");
+
+const spinner =
+  $("spinner");
+
+const progressBox =
+  $("progressBox");
+
+const status =
+  $("status");
+
+const percent =
+  $("percent");
+
+const barFill =
+  $("barFill");
+
+
+// ============================================================
+// RESULT
+// ============================================================
+
+const result =
+  $("result");
+
+const resultMeta =
+  $("resultMeta");
+
+const downloadBtn =
+  $("downloadBtn");
 
 
 // ============================================================
 // DOWNLOAD
 // ============================================================
 
-const downloadProgress = $("downloadProgress");
-const downloadStatus = $("downloadStatus");
-const downloadPercent = $("downloadPercent");
-const downloadBarFill = $("downloadBarFill");
-const downloadDone = $("downloadDone");
+const downloadProgress =
+  $("downloadProgress");
 
-const result = $("result");
-const resultMeta = $("resultMeta");
-const downloadBtn = $("downloadBtn");
+const downloadStatus =
+  $("downloadStatus");
 
-const errorBox = $("error");
+const downloadPercent =
+  $("downloadPercent");
+
+const downloadBarFill =
+  $("downloadBarFill");
+
+const downloadDone =
+  $("downloadDone");
+
+
+// ============================================================
+// ERROR
+// ============================================================
+
+const errorBox =
+  $("error");
+
+
+// ============================================================
+// TIKTOK STUDIO
+// ============================================================
+
+const tiktokStudioBtn =
+  $("tiktokStudioBtn");
 
 
 // ============================================================
@@ -139,54 +192,50 @@ const errorBox = $("error");
 // ============================================================
 
 let currentUser = null;
+
 let currentProfile = null;
 
 let selectedFile = null;
 
 let outputBlob = null;
+
 let outputName = "";
 
 
 // ============================================================
-// PREMIUM PLANS
-// IMPORTANT:
-// These are UI values only.
-// Server MUST use its own locked prices.
+// PREMIUM / FREE ACCESS
+// ============================================================
+//
+// Free account also uses premium_until.
+// Example:
+//
+// premium_until = now + 2 days
+//
+// When date is still future:
+// ACCESS = TRUE
+//
+// When date has expired:
+// ACCESS = FALSE
+//
 // ============================================================
 
-const PLANS = {
+function hasAccess() {
 
-  week: {
-    name: "⭐ 1 Week",
-    amount: 2.00,
-    days: 7
-  },
-
-  month: {
-    name: "🔥 1 Month",
-    amount: 5.00,
-    days: 30
-  },
-
-  three_month: {
-    name: "💎 3 Months",
-    amount: 9.00,
-    days: 90
-  },
-
-  six_month: {
-    name: "👑 6 Months",
-    amount: 19.00,
-    days: 180
-  },
-
-  year: {
-    name: "🏆 1 Year",
-    amount: 29.00,
-    days: 365
+  if (!currentProfile) {
+    return false;
   }
 
-};
+  if (!currentProfile.premium_until) {
+    return false;
+  }
+
+  const expiry =
+    new Date(
+      currentProfile.premium_until
+    ).getTime();
+
+  return expiry > Date.now();
+}
 
 
 // ============================================================
@@ -210,14 +259,26 @@ function formatBytes(bytes) {
     "GB"
   ];
 
-  const index = Math.floor(
-    Math.log(bytes) / Math.log(1024)
-  );
+  const index =
+    Math.floor(
+      Math.log(bytes) /
+      Math.log(1024)
+    );
 
   const value =
-    bytes / Math.pow(1024, index);
+    bytes /
+    Math.pow(
+      1024,
+      index
+    );
 
-  return `${value.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
+  return (
+    value.toFixed(
+      index === 0 ? 0 : 2
+    )
+    + " "
+    + units[index]
+  );
 }
 
 
@@ -232,12 +293,23 @@ function formatDuration(seconds) {
   }
 
   const minutes =
-    Math.floor(seconds / 60);
+    Math.floor(
+      seconds / 60
+    );
 
   const secs =
-    Math.floor(seconds % 60);
+    Math.floor(
+      seconds % 60
+    );
 
-  return `${minutes}:${String(secs).padStart(2, "0")}`;
+  return (
+    minutes +
+    ":" +
+    String(secs).padStart(
+      2,
+      "0"
+    )
+  );
 }
 
 
@@ -247,7 +319,8 @@ function formatDuration(seconds) {
 
 function showError(message) {
 
-  errorBox.textContent = message;
+  errorBox.textContent =
+    message;
 
   errorBox.classList.remove(
     "hidden"
@@ -257,7 +330,8 @@ function showError(message) {
 
 function clearError() {
 
-  errorBox.textContent = "";
+  errorBox.textContent =
+    "";
 
   errorBox.classList.add(
     "hidden"
@@ -353,14 +427,24 @@ function setDownloadProgress(
 function resetOutput() {
 
   outputBlob = null;
+
   outputName = "";
 
   result.classList.add(
     "hidden"
   );
 
+  progressBox.classList.add(
+    "hidden"
+  );
+
   downloadProgress.classList.add(
     "hidden"
+  );
+
+  setProgress(
+    0,
+    "Preparing..."
   );
 
   setDownloadProgress(
@@ -369,29 +453,7 @@ function resetOutput() {
   );
 
   downloadDone.textContent =
-    "Preparing download...";
-}
-
-
-// ============================================================
-// PREMIUM CHECK
-// ============================================================
-
-function premiumIsActive() {
-
-  if (!currentProfile) {
-    return false;
-  }
-
-  if (!currentProfile.premium_until) {
-    return false;
-  }
-
-  return (
-    new Date(
-      currentProfile.premium_until
-    ).getTime() > Date.now()
-  );
+    "Preparing video...";
 }
 
 
@@ -403,7 +465,8 @@ function updatePatchButton() {
 
   if (!currentUser) {
 
-    processBtn.disabled = true;
+    processBtn.disabled =
+      true;
 
     processText.textContent =
       "LOGIN TO PATCH";
@@ -412,12 +475,18 @@ function updatePatchButton() {
   }
 
 
-  if (!premiumIsActive()) {
+  // IMPORTANT:
+  // Free 2 Days is allowed here.
+  // We only check whether access
+  // has expired.
 
-    processBtn.disabled = true;
+  if (!hasAccess()) {
+
+    processBtn.disabled =
+      true;
 
     processText.textContent =
-      "PREMIUM REQUIRED";
+      "ACCESS EXPIRED";
 
     return;
   }
@@ -425,7 +494,8 @@ function updatePatchButton() {
 
   if (!selectedFile) {
 
-    processBtn.disabled = true;
+    processBtn.disabled =
+      true;
 
     processText.textContent =
       "SELECT VIDEO";
@@ -434,7 +504,8 @@ function updatePatchButton() {
   }
 
 
-  processBtn.disabled = false;
+  processBtn.disabled =
+    false;
 
   processText.textContent =
     "PATCH VIDEO";
@@ -445,16 +516,19 @@ function updatePatchButton() {
 // LOAD PROFILE
 // ============================================================
 
-async function loadProfile(userId) {
+async function loadProfile(
+  userId
+) {
 
   const {
     data,
     error
-  } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .maybeSingle();
+  } =
+    await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
 
 
   if (error) {
@@ -475,7 +549,7 @@ async function loadProfile(userId) {
   if (!data) {
 
     premiumStatus.textContent =
-      "🆓 Free plan";
+      "No access";
 
     updatePatchButton();
 
@@ -483,21 +557,38 @@ async function loadProfile(userId) {
   }
 
 
-  if (premiumIsActive()) {
+  if (hasAccess()) {
 
-    const until =
+    const expiry =
       new Date(
         data.premium_until
       );
 
 
-    premiumStatus.textContent =
-      `👑 ${data.plan || "Premium"} • until ${until.toLocaleDateString()}`;
+    let planText =
+      data.plan ||
+      "Free";
+
+
+    if (
+      planText.toLowerCase()
+        === "free"
+    ) {
+
+      premiumStatus.textContent =
+        `🆓 Free • until ${expiry.toLocaleString()}`;
+
+    } else {
+
+      premiumStatus.textContent =
+        `👑 ${planText} • until ${expiry.toLocaleString()}`;
+    }
+
 
   } else {
 
     premiumStatus.textContent =
-      "🔒 Premium expired";
+      "🔒 Access expired";
   }
 
 
@@ -506,10 +597,12 @@ async function loadProfile(userId) {
 
 
 // ============================================================
-// UPDATE USER UI
+// UPDATE USER
 // ============================================================
 
-async function updateUser(user) {
+async function updateUser(
+  user
+) {
 
   currentUser =
     user || null;
@@ -525,7 +618,8 @@ async function updateUser(user) {
       "hidden"
     );
 
-    currentProfile = null;
+    currentProfile =
+      null;
 
     premiumStatus.textContent =
       "Login required";
@@ -546,7 +640,8 @@ async function updateUser(user) {
 
 
   accountEmail.textContent =
-    currentUser.email || "User";
+    currentUser.email ||
+    "User";
 
 
   try {
@@ -560,7 +655,7 @@ async function updateUser(user) {
     console.error(error);
 
     premiumStatus.textContent =
-      "Unable to load profile";
+      "Profile error";
   }
 }
 
@@ -602,8 +697,11 @@ signUpBtn.addEventListener(
     }
 
 
-    signUpBtn.disabled = true;
-    loginBtn.disabled = true;
+    signUpBtn.disabled =
+      true;
+
+    loginBtn.disabled =
+      true;
 
 
     setAuthStatus(
@@ -659,8 +757,11 @@ signUpBtn.addEventListener(
 
     } finally {
 
-      signUpBtn.disabled = false;
-      loginBtn.disabled = false;
+      signUpBtn.disabled =
+        false;
+
+      loginBtn.disabled =
+        false;
     }
 
   }
@@ -694,8 +795,11 @@ loginBtn.addEventListener(
     }
 
 
-    loginBtn.disabled = true;
-    signUpBtn.disabled = true;
+    loginBtn.disabled =
+      true;
+
+    signUpBtn.disabled =
+      true;
 
 
     setAuthStatus(
@@ -743,8 +847,11 @@ loginBtn.addEventListener(
 
     } finally {
 
-      loginBtn.disabled = false;
-      signUpBtn.disabled = false;
+      loginBtn.disabled =
+        false;
+
+      signUpBtn.disabled =
+        false;
     }
 
   }
@@ -769,26 +876,31 @@ logoutBtn.addEventListener(
     }
 
 
-    currentUser = null;
-    currentProfile = null;
+    currentUser =
+      null;
 
-    selectedFile = null;
+    currentProfile =
+      null;
 
-    resetOutput();
+    selectedFile =
+      null;
+
+
+    fileInput.value =
+      "";
+
 
     filePanel.classList.add(
       "hidden"
     );
 
-    fileInput.value = "";
 
-    preview.removeAttribute(
-      "src"
+    resetOutput();
+
+
+    updateUser(
+      null
     );
-
-    preview.load();
-
-    updateUser(null);
 
   }
 );
@@ -803,9 +915,12 @@ supabase.auth.onAuthStateChange(
 
     setTimeout(
       () => {
+
         updateUser(
-          session?.user || null
+          session?.user ||
+          null
         );
+
       },
       0
     );
@@ -815,7 +930,7 @@ supabase.auth.onAuthStateChange(
 
 
 // ============================================================
-// INITIAL AUTH
+// INITIAL SESSION
 // ============================================================
 
 async function initAuth() {
@@ -836,7 +951,8 @@ async function initAuth() {
 
 
   await updateUser(
-    data.session?.user || null
+    data.session?.user ||
+    null
   );
 }
 
@@ -845,278 +961,120 @@ await initAuth();
 
 
 // ============================================================
-// PLAN CLICK
+// PLAN BUTTONS
+// ============================================================
+//
+// Payment will be connected later.
+// The HTML plan buttons remain separate
+// from the video patch button.
 // ============================================================
 
-plans.forEach(
-  (planElement) => {
+const PLAN_NAMES = {
 
-    planElement.addEventListener(
-      "click",
-      () => {
+  week: {
+    name: "⭐ 1 Week",
+    amount: 2
+  },
 
-        const planId =
-          planElement.dataset.plan;
+  month: {
+    name: "🔥 1 Month",
+    amount: 5
+  },
 
+  three_month: {
+    name: "💎 3 Months",
+    amount: 9
+  },
 
-        // FREE
-        if (planId === "free") {
+  six_month: {
+    name: "👑 6 Months",
+    amount: 19
+  },
 
-          alert(
-            "🆓 Free plan gives 2 Days access."
-          );
-
-          return;
-        }
-
-
-        // LOGIN REQUIRED
-        if (!currentUser) {
-
-          alert(
-            "Please LOGIN first."
-          );
-
-          authEmail.focus();
-
-          return;
-        }
-
-
-        const plan =
-          PLANS[planId];
-
-
-        if (!plan) {
-
-          showError(
-            "Invalid payment plan."
-          );
-
-          return;
-        }
-
-
-        selectedPlanId =
-          planId;
-
-
-        selectedPlanName.textContent =
-          plan.name;
-
-
-        selectedPlanAmount.textContent =
-          `$${plan.amount.toFixed(2)} USD`;
-
-
-        paymentOverlay.classList.remove(
-          "hidden"
-        );
-
-      }
-    );
-
+  year: {
+    name: "🏆 1 Year",
+    amount: 29
   }
-);
+
+};
 
 
-// ============================================================
-// CANCEL PAYMENT
-// ============================================================
+document
+  .querySelectorAll(".plan")
+  .forEach(
+    (planButton) => {
 
-cancelPaymentBtn.addEventListener(
-  "click",
-  () => {
+      planButton.addEventListener(
+        "click",
+        () => {
 
-    selectedPlanId = null;
-
-    paymentOverlay.classList.add(
-      "hidden"
-    );
-
-  }
-);
+          const planId =
+            planButton.dataset.plan;
 
 
-// ============================================================
-// CONFIRM PAYMENT
-// ============================================================
+          if (
+            planId === "free"
+          ) {
 
-confirmPaymentBtn.addEventListener(
-  "click",
-  async () => {
+            alert(
+              "🆓 Free access = 2 Days."
+            );
 
-    if (!currentUser) {
-
-      alert(
-        "Please login first."
-      );
-
-      paymentOverlay.classList.add(
-        "hidden"
-      );
-
-      return;
-    }
-
-
-    if (!selectedPlanId) {
-
-      showError(
-        "No payment plan selected."
-      );
-
-      return;
-    }
-
-
-    const plan =
-      PLANS[selectedPlanId];
-
-
-    if (!plan) {
-
-      showError(
-        "Invalid payment plan."
-      );
-
-      return;
-    }
-
-
-    confirmPaymentBtn.disabled =
-      true;
-
-    cancelPaymentBtn.disabled =
-      true;
-
-
-    confirmPaymentBtn.textContent =
-      "OPENING PAYWAY...";
-
-
-    try {
-
-      /*
-       * IMPORTANT:
-       *
-       * We send ONLY plan_id.
-       *
-       * We DO NOT send amount.
-       *
-       * The Edge Function must decide:
-       *
-       * week        = $2
-       * month       = $5
-       * three_month = $9
-       * six_month   = $19
-       * year        = $29
-       *
-       * This prevents users from changing
-       * $2 into $1 from browser DevTools.
-       */
-
-
-      const {
-        data: {
-          session
-        }
-      } =
-        await supabase.auth.getSession();
-
-
-      if (!session) {
-
-        throw new Error(
-          "Your login session expired. Please login again."
-        );
-      }
-
-
-      const response =
-        await fetch(
-          `${SUPABASE_URL}/functions/v1/create-payment`,
-          {
-            method: "POST",
-
-            headers: {
-
-              "Content-Type":
-                "application/json",
-
-              "Authorization":
-                `Bearer ${session.access_token}`
-
-            },
-
-            body: JSON.stringify({
-
-              plan_id:
-                selectedPlanId
-
-            })
+            return;
           }
-        );
 
 
-      const data =
-        await response.json()
-          .catch(
-            () => ({})
+          if (!currentUser) {
+
+            alert(
+              "Please LOGIN first."
+            );
+
+            authEmail.focus();
+
+            return;
+          }
+
+
+          const plan =
+            PLAN_NAMES[planId];
+
+
+          if (!plan) {
+
+            showError(
+              "Invalid plan."
+            );
+
+            return;
+          }
+
+
+          /*
+           * Payment integration:
+           *
+           * planId = week
+           * server must set amount = $2
+           *
+           * planId = month
+           * server must set amount = $5
+           *
+           * etc.
+           *
+           * Do NOT trust an amount sent
+           * from the browser.
+           */
+
+
+          alert(
+            `${plan.name}\nPrice: $${plan.amount}.00 USD\n\nPayment system will open here.`
           );
 
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.error ||
-          "Unable to create payment."
-        );
-      }
-
-
-      if (!data.checkout_url) {
-
-        throw new Error(
-          "Payment checkout URL was not returned."
-        );
-      }
-
-
-      /*
-       * Go to ABA PayWay
-       */
-
-      window.location.href =
-        data.checkout_url;
-
-
-    } catch (error) {
-
-      console.error(
-        "Payment error:",
-        error
+        }
       );
 
-
-      showError(
-        error?.message ||
-        "Unable to start payment."
-      );
-
-
-      confirmPaymentBtn.disabled =
-        false;
-
-      cancelPaymentBtn.disabled =
-        false;
-
-      confirmPaymentBtn.textContent =
-        "PAY NOW";
     }
-
-  }
-);
+  );
 
 
 // ============================================================
@@ -1133,17 +1091,17 @@ pickBtn.addEventListener(
     if (!currentUser) {
 
       showError(
-        "Please login first."
+        "Please LOGIN first."
       );
 
       return;
     }
 
 
-    if (!premiumIsActive()) {
+    if (!hasAccess()) {
 
       showError(
-        "Premium access is required."
+        "Your Free/Premium access has expired."
       );
 
       return;
@@ -1162,7 +1120,7 @@ pickBtn.addEventListener(
 
 fileInput.addEventListener(
   "change",
-  async () => {
+  () => {
 
     const file =
       fileInput.files?.[0];
@@ -1176,20 +1134,21 @@ fileInput.addEventListener(
     clearError();
 
 
-    const name =
+    const filename =
       file.name.toLowerCase();
 
 
     if (
-      !name.endsWith(".mp4") &&
-      !name.endsWith(".mov")
+      !filename.endsWith(".mp4") &&
+      !filename.endsWith(".mov")
     ) {
 
       showError(
-        "Please select an MP4 or MOV video."
+        "Please select MP4 or MOV."
       );
 
-      fileInput.value = "";
+      fileInput.value =
+        "";
 
       return;
     }
@@ -1207,7 +1166,9 @@ fileInput.addEventListener(
 
 
     fileSize.textContent =
-      formatBytes(file.size);
+      formatBytes(
+        file.size
+      );
 
 
     if (preview.src) {
@@ -1219,7 +1180,9 @@ fileInput.addEventListener(
 
 
     preview.src =
-      URL.createObjectURL(file);
+      URL.createObjectURL(
+        file
+      );
 
 
     filePanel.classList.remove(
@@ -1243,5 +1206,177 @@ fileInput.addEventListener(
 
 
 // ============================================================
-// REMOVE FILE
-// =================================================
+// REMOVE VIDEO
+// ============================================================
+
+removeBtn.addEventListener(
+  "click",
+  () => {
+
+    selectedFile =
+      null;
+
+
+    fileInput.value =
+      "";
+
+
+    if (preview.src) {
+
+      URL.revokeObjectURL(
+        preview.src
+      );
+    }
+
+
+    preview.removeAttribute(
+      "src"
+    );
+
+    preview.load();
+
+
+    filePanel.classList.add(
+      "hidden"
+    );
+
+
+    resetOutput();
+
+
+    updatePatchButton();
+
+  }
+);
+
+
+// ============================================================
+// PATCH VIDEO
+// ============================================================
+//
+// BUTTON 1
+//
+// SELECT VIDEO
+//       ↓
+// PATCH VIDEO
+//       ↓
+// PROGRESS
+//       ↓
+// PATCH COMPLETE
+//
+// ============================================================
+
+processBtn.addEventListener(
+  "click",
+  async () => {
+
+    clearError();
+
+
+    if (!currentUser) {
+
+      showError(
+        "Please LOGIN first."
+      );
+
+      return;
+    }
+
+
+    if (!hasAccess()) {
+
+      showError(
+        "Your Free/Premium access has expired."
+      );
+
+      return;
+    }
+
+
+    if (!selectedFile) {
+
+      showError(
+        "Please select a video."
+      );
+
+      return;
+    }
+
+
+    processBtn.disabled =
+      true;
+
+    spinner.classList.remove(
+      "hidden"
+    );
+
+
+    processText.textContent =
+      "PATCHING...";
+
+
+    progressBox.classList.remove(
+      "hidden"
+    );
+
+
+    result.classList.add(
+      "hidden"
+    );
+
+
+    setProgress(
+      0,
+      "Preparing..."
+    );
+
+
+    try {
+
+      await new Promise(
+        resolve =>
+          setTimeout(
+            resolve,
+            30
+          )
+      );
+
+
+      setProgress(
+        10,
+        "Reading video..."
+      );
+
+
+      const buffer =
+        await selectedFile.arrayBuffer();
+
+
+      setProgress(
+        25,
+        "Normalizing MP4 container..."
+      );
+
+
+      const bytes =
+        new Uint8Array(
+          buffer
+        );
+
+
+      const view =
+        new DataView(
+          buffer
+        );
+
+
+      const normalized =
+        normalizeContainer(
+          bytes,
+          view
+        );
+
+
+      if (
+        !normalized ||
+        !normalized.valid
