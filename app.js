@@ -1,30 +1,40 @@
 // ========================================
 // TL NoBlur
-// Supabase Authentication + Premium
-// Client-side MP4/MOV patching
-// ========================================
-
-
-// ========================================
-// SUPABASE
+// Supabase Auth + Persistent Login
+// Premium Access + NoBlur Patching
 // ========================================
 
 import { createClient } from
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 
-// ⚠️ PUT YOUR SUPABASE VALUES HERE
+// ========================================
+// SUPABASE CONFIG
+// ========================================
 
 const SUPABASE_URL =
-  "https://glpkadgmsaozmcebyrxw.supabase.co";
+  "YOUR_SUPABASE_PROJECT_URL";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_UYD86Z2gQD5o8BMfuP5IHw__bIcUX0C";
+  "YOUR_SUPABASE_PUBLISHABLE_KEY";
 
+
+// ========================================
+// SUPABASE CLIENT
+// Login session persists in browser
+// until user presses LOGOUT
+// ========================================
 
 const supabase = createClient(
   SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
 );
 
 
@@ -45,105 +55,56 @@ const { inflateSampleTableVideo } = await import(
 // HELPER
 // ========================================
 
-const $ = (id) =>
-  document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
 
 // ========================================
-// AUTH ELEMENTS
+// AUTH UI
 // ========================================
 
-const loginBox =
-  $("loginBox");
+const loginBox = $("loginBox");
+const accountBox = $("accountBox");
 
-const accountBox =
-  $("accountBox");
+const authEmail = $("authEmail");
+const authPassword = $("authPassword");
 
-const authEmail =
-  $("authEmail");
+const signUpBtn = $("signUpBtn");
+const loginBtn = $("loginBtn");
+const logoutBtn = $("logoutBtn");
 
-const authPassword =
-  $("authPassword");
-
-const signUpBtn =
-  $("signUpBtn");
-
-const loginBtn =
-  $("loginBtn");
-
-const logoutBtn =
-  $("logoutBtn");
-
-const authStatus =
-  $("authStatus");
-
-const accountEmail =
-  $("accountEmail");
-
-const premiumStatus =
-  $("premiumStatus");
+const authStatus = $("authStatus");
+const accountEmail = $("accountEmail");
+const premiumStatus = $("premiumStatus");
 
 
 // ========================================
-// VIDEO ELEMENTS
+// VIDEO UI
 // ========================================
 
-const fileInput =
-  $("fileInput");
+const fileInput = $("fileInput");
+const pickBtn = $("pickBtn");
+const processBtn = $("processBtn");
+const processText = $("processText");
+const spinner = $("spinner");
 
-const pickBtn =
-  $("pickBtn");
+const filePanel = $("filePanel");
+const preview = $("preview");
+const fileName = $("fileName");
+const fileStats = $("fileStats");
+const fileSize = $("fileSize");
 
-const processBtn =
-  $("processBtn");
+const removeBtn = $("removeBtn");
 
-const processText =
-  $("processText");
+const progressBox = $("progressBox");
+const status = $("status");
+const percent = $("percent");
+const barFill = $("barFill");
 
-const spinner =
-  $("spinner");
+const result = $("result");
+const resultMeta = $("resultMeta");
+const downloadBtn = $("downloadBtn");
 
-const filePanel =
-  $("filePanel");
-
-const preview =
-  $("preview");
-
-const fileName =
-  $("fileName");
-
-const fileStats =
-  $("fileStats");
-
-const fileSize =
-  $("fileSize");
-
-const removeBtn =
-  $("removeBtn");
-
-const progressBox =
-  $("progressBox");
-
-const status =
-  $("status");
-
-const percent =
-  $("percent");
-
-const barFill =
-  $("barFill");
-
-const result =
-  $("result");
-
-const resultMeta =
-  $("resultMeta");
-
-const downloadBtn =
-  $("downloadBtn");
-
-const errorBox =
-  $("error");
+const errorBox = $("error");
 
 
 // ========================================
@@ -151,20 +112,16 @@ const errorBox =
 // ========================================
 
 let selectedFile = null;
-
 let outputBlob = null;
-
 let outputName = "";
-
 let outputUrl = "";
 
 let currentUser = null;
-
 let isPremium = false;
 
 
 // ========================================
-// FORMAT FILE SIZE
+// FORMAT BYTES
 // ========================================
 
 function formatBytes(bytes) {
@@ -173,15 +130,9 @@ function formatBytes(bytes) {
     return "—";
   }
 
-  const units = [
-    "B",
-    "KB",
-    "MB",
-    "GB"
-  ];
+  const units = ["B", "KB", "MB", "GB"];
 
   let n = bytes;
-
   let i = 0;
 
   while (
@@ -200,29 +151,18 @@ function formatBytes(bytes) {
 // PROGRESS
 // ========================================
 
-function setProgress(
-  value,
-  text
-) {
+function setProgress(value, text) {
 
-  const n =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        Math.round(value)
-      )
-    );
+  const n = Math.max(
+    0,
+    Math.min(100, Math.round(value))
+  );
 
-  percent.textContent =
-    `${n}%`;
-
-  barFill.style.width =
-    `${n}%`;
+  percent.textContent = `${n}%`;
+  barFill.style.width = `${n}%`;
 
   if (text) {
-    status.textContent =
-      text;
+    status.textContent = text;
   }
 }
 
@@ -231,27 +171,17 @@ function setProgress(
 // ERROR
 // ========================================
 
-function showError(
-  message
-) {
+function showError(message) {
 
-  errorBox.textContent =
-    message;
-
-  errorBox.classList.remove(
-    "hidden"
-  );
+  errorBox.textContent = message;
+  errorBox.classList.remove("hidden");
 }
 
 
 function clearError() {
 
-  errorBox.classList.add(
-    "hidden"
-  );
-
-  errorBox.textContent =
-    "";
+  errorBox.classList.add("hidden");
+  errorBox.textContent = "";
 }
 
 
@@ -262,129 +192,40 @@ function clearError() {
 function resetOutput() {
 
   if (outputUrl) {
-
-    URL.revokeObjectURL(
-      outputUrl
-    );
-
-    outputUrl =
-      "";
+    URL.revokeObjectURL(outputUrl);
+    outputUrl = "";
   }
 
-  outputBlob =
-    null;
+  outputBlob = null;
+  outputName = "";
 
-  outputName =
-    "";
-
-  result.classList.add(
-    "hidden"
-  );
+  result.classList.add("hidden");
 }
 
 
 // ========================================
-// READ VIDEO INFO
-// ========================================
-
-async function readVideoInfo(
-  file
-) {
-
-  return new Promise(
-    (resolve) => {
-
-      const url =
-        URL.createObjectURL(
-          file
-        );
-
-      const v =
-        document.createElement(
-          "video"
-        );
-
-      v.preload =
-        "metadata";
-
-      v.onloadedmetadata =
-        () => {
-
-          resolve({
-            width:
-              v.videoWidth,
-
-            height:
-              v.videoHeight,
-
-            duration:
-              v.duration,
-
-            fps:
-              "FPS not read by browser"
-          });
-
-          URL.revokeObjectURL(
-            url
-          );
-        };
-
-
-      v.onerror =
-        () => {
-
-          resolve({
-            width: 0,
-            height: 0,
-            duration: 0,
-            fps: "—"
-          });
-
-          URL.revokeObjectURL(
-            url
-          );
-        };
-
-
-      v.src =
-        url;
-    }
-  );
-}
-
-
-// ========================================
-// UPDATE PROCESS BUTTON
+// UPDATE PATCH BUTTON
 // ========================================
 
 function updateProcessButton() {
 
   if (!currentUser) {
 
-    processBtn.disabled =
-      true;
-
-    processText.textContent =
-      "LOGIN TO PATCH";
+    processBtn.disabled = true;
+    processText.textContent = "LOGIN TO PATCH";
 
     return;
   }
-
 
   if (!isPremium) {
 
-    processBtn.disabled =
-      true;
-
-    processText.textContent =
-      "PREMIUM REQUIRED";
+    processBtn.disabled = true;
+    processText.textContent = "PREMIUM REQUIRED";
 
     return;
   }
 
-
-  processBtn.disabled =
-    !selectedFile;
+  processBtn.disabled = !selectedFile;
 
   processText.textContent =
     selectedFile
@@ -394,21 +235,57 @@ function updateProcessButton() {
 
 
 // ========================================
-// SELECT VIDEO
+// READ VIDEO INFO
 // ========================================
 
-function selectFile(
-  file
-) {
+async function readVideoInfo(file) {
 
-  if (!file) {
-    return;
-  }
+  return new Promise((resolve) => {
 
+    const url = URL.createObjectURL(file);
+
+    const video =
+      document.createElement("video");
+
+    video.preload = "metadata";
+
+    video.onloadedmetadata = () => {
+
+      resolve({
+        width: video.videoWidth,
+        height: video.videoHeight,
+        duration: video.duration
+      });
+
+      URL.revokeObjectURL(url);
+    };
+
+    video.onerror = () => {
+
+      resolve({
+        width: 0,
+        height: 0,
+        duration: 0
+      });
+
+      URL.revokeObjectURL(url);
+    };
+
+    video.src = url;
+  });
+}
+
+
+// ========================================
+// SELECT FILE
+// ========================================
+
+function selectFile(file) {
+
+  if (!file) return;
 
   const lower =
     file.name.toLowerCase();
-
 
   if (
     !lower.endsWith(".mp4") &&
@@ -422,7 +299,6 @@ function selectFile(
     return;
   }
 
-
   if (!currentUser) {
 
     showError(
@@ -432,123 +308,78 @@ function selectFile(
     return;
   }
 
-
   if (!isPremium) {
 
     showError(
-      "Premium access is required to patch videos."
+      "Premium access is required."
     );
 
     return;
   }
 
-
-  selectedFile =
-    file;
+  selectedFile = file;
 
   resetOutput();
-
   clearError();
 
-
   if (preview.src) {
-
-    URL.revokeObjectURL(
-      preview.src
-    );
+    URL.revokeObjectURL(preview.src);
   }
 
-
   preview.src =
-    URL.createObjectURL(
-      file
-    );
-
+    URL.createObjectURL(file);
 
   fileName.textContent =
     file.name;
 
-
   fileSize.textContent =
-    formatBytes(
-      file.size
-    );
+    formatBytes(file.size);
 
+  readVideoInfo(file).then((info) => {
 
-  readVideoInfo(
-    file
-  ).then(
-    (info) => {
+    const dimensions =
+      info.width && info.height
+        ? `${info.width}×${info.height}`
+        : "Video";
 
-      const dims =
-        info.width &&
-        info.height
+    const duration =
+      info.duration
+        ? `${info.duration.toFixed(1)}s`
+        : "—";
 
-          ? `${info.width}×${info.height}`
+    fileStats.textContent =
+      `${dimensions} • ${duration}`;
+  });
 
-          : "Video";
+  filePanel.classList.remove("hidden");
 
-
-      const dur =
-        info.duration
-
-          ? `${info.duration.toFixed(1)}s`
-
-          : "—";
-
-
-      fileStats.textContent =
-        `${dims} • ${dur}`;
-    }
-  );
-
-
-  filePanel.classList.remove(
-    "hidden"
-  );
-
-
-  processBtn.disabled =
-    false;
-
-
-  processText.textContent =
-    "PATCH VIDEO";
+  processBtn.disabled = false;
+  processText.textContent = "PATCH VIDEO";
 }
 
 
 // ========================================
-// REMOVE VIDEO
+// REMOVE FILE
 // ========================================
 
 function removeFile() {
 
-  selectedFile =
-    null;
+  selectedFile = null;
 
   resetOutput();
 
-  filePanel.classList.add(
-    "hidden"
-  );
+  filePanel.classList.add("hidden");
 
-  fileInput.value =
-    "";
-
+  fileInput.value = "";
 
   if (preview.src) {
 
-    URL.revokeObjectURL(
-      preview.src
-    );
+    URL.revokeObjectURL(preview.src);
 
-    preview.removeAttribute(
-      "src"
-    );
+    preview.removeAttribute("src");
 
     preview.load();
   }
-
 
   updateProcessButton();
 }
@@ -558,31 +389,18 @@ function removeFile() {
 // CREATE PROFILE
 // ========================================
 
-async function createProfile(
-  user
-) {
+async function createProfile(user) {
 
-  if (!user) {
-    return;
-  }
+  if (!user) return;
 
-
-  const {
-    error
-  } =
+  const { error } =
     await supabase
       .from("profiles")
       .insert({
-        id:
-          user.id,
-
-        email:
-          user.email,
-
-        is_premium:
-          false
+        id: user.id,
+        email: user.email,
+        is_premium: false
       });
-
 
   if (
     error &&
@@ -598,65 +416,39 @@ async function createProfile(
 
 
 // ========================================
-// LOAD PREMIUM STATUS
+// LOAD PREMIUM
 // ========================================
 
-async function loadPremiumStatus(
-  user
-) {
+async function loadPremiumStatus(user) {
 
-  currentUser =
-    user || null;
-
+  currentUser = user || null;
 
   if (!user) {
 
-    isPremium =
-      false;
+    isPremium = false;
 
-    loginBox.classList.remove(
-      "hidden"
-    );
-
-    accountBox.classList.add(
-      "hidden"
-    );
+    loginBox.classList.remove("hidden");
+    accountBox.classList.add("hidden");
 
     updateProcessButton();
 
     return;
   }
 
-
-  loginBox.classList.add(
-    "hidden"
-  );
-
-  accountBox.classList.remove(
-    "hidden"
-  );
-
+  loginBox.classList.add("hidden");
+  accountBox.classList.remove("hidden");
 
   accountEmail.textContent =
-    user.email ||
-    "User";
+    user.email || "User";
 
-
-  let {
-    data,
-    error
-  } =
+  let { data, error } =
     await supabase
       .from("profiles")
       .select(
         "is_premium,premium_until"
       )
-      .eq(
-        "id",
-        user.id
-      )
+      .eq("id", user.id)
       .maybeSingle();
-
 
   if (error) {
 
@@ -665,57 +457,41 @@ async function loadPremiumStatus(
       error
     );
 
+    isPremium = false;
+
     premiumStatus.textContent =
       "Premium status unavailable";
-
-    isPremium =
-      false;
 
     updateProcessButton();
 
     return;
   }
 
-
   if (!data) {
 
-    await createProfile(
-      user
-    );
+    await createProfile(user);
 
-
-    isPremium =
-      false;
-
+    isPremium = false;
 
     premiumStatus.textContent =
       "🔒 Premium: Pending";
 
-
     updateProcessButton();
 
     return;
   }
 
-
   let active =
     data.is_premium === true;
 
-
-  // ====================================
-  // CHECK PREMIUM EXPIRATION
-  // ====================================
-
+  // Check expiration
   if (
     active &&
     data.premium_until
   ) {
 
     const until =
-      new Date(
-        data.premium_until
-      );
-
+      new Date(data.premium_until);
 
     if (
       Number.isFinite(
@@ -724,27 +500,16 @@ async function loadPremiumStatus(
       until < new Date()
     ) {
 
-      active =
-        false;
+      active = false;
     }
   }
 
+  isPremium = active;
 
-  isPremium =
-    active;
-
-
-  if (active) {
-
-    premiumStatus.textContent =
-      "✅ Premium: Active";
-
-  } else {
-
-    premiumStatus.textContent =
-      "🔒 Premium: Pending";
-  }
-
+  premiumStatus.textContent =
+    active
+      ? "✅ Premium: Active"
+      : "🔒 Premium: Pending";
 
   updateProcessButton();
 }
@@ -760,19 +525,13 @@ signUpBtn.addEventListener(
 
     clearError();
 
-
     const email =
       authEmail.value.trim();
-
 
     const password =
       authPassword.value;
 
-
-    if (
-      !email ||
-      !password
-    ) {
+    if (!email || !password) {
 
       authStatus.textContent =
         "Please enter email and password.";
@@ -780,10 +539,7 @@ signUpBtn.addEventListener(
       return;
     }
 
-
-    if (
-      password.length < 6
-    ) {
+    if (password.length < 6) {
 
       authStatus.textContent =
         "Password must be at least 6 characters.";
@@ -791,42 +547,29 @@ signUpBtn.addEventListener(
       return;
     }
 
-
-    signUpBtn.disabled =
-      true;
-
-    loginBtn.disabled =
-      true;
-
+    signUpBtn.disabled = true;
+    loginBtn.disabled = true;
 
     authStatus.textContent =
       "Creating account...";
 
-
     try {
 
-      const {
-        data,
-        error
-      } =
+      const { data, error } =
         await supabase.auth.signUp({
           email,
           password
         });
 
-
       if (error) {
         throw error;
       }
 
-
       if (!data.user) {
-
         throw new Error(
           "Account could not be created."
         );
       }
-
 
       if (data.session) {
 
@@ -834,11 +577,9 @@ signUpBtn.addEventListener(
           data.user
         );
 
-
         await loadPremiumStatus(
           data.user
         );
-
 
         authStatus.textContent =
           "Account created successfully.";
@@ -846,17 +587,12 @@ signUpBtn.addEventListener(
       } else {
 
         authStatus.textContent =
-          "Account created. Check your email and confirm your account before login.";
+          "Account created. Please confirm your email before login.";
       }
-
 
     } catch (err) {
 
-      console.error(
-        "Sign up error:",
-        err
-      );
-
+      console.error(err);
 
       authStatus.textContent =
         err?.message ||
@@ -864,11 +600,8 @@ signUpBtn.addEventListener(
 
     } finally {
 
-      signUpBtn.disabled =
-        false;
-
-      loginBtn.disabled =
-        false;
+      signUpBtn.disabled = false;
+      loginBtn.disabled = false;
     }
   }
 );
@@ -884,19 +617,13 @@ loginBtn.addEventListener(
 
     clearError();
 
-
     const email =
       authEmail.value.trim();
-
 
     const password =
       authPassword.value;
 
-
-    if (
-      !email ||
-      !password
-    ) {
+    if (!email || !password) {
 
       authStatus.textContent =
         "Please enter email and password.";
@@ -904,54 +631,34 @@ loginBtn.addEventListener(
       return;
     }
 
-
-    signUpBtn.disabled =
-      true;
-
-    loginBtn.disabled =
-      true;
-
+    signUpBtn.disabled = true;
+    loginBtn.disabled = true;
 
     authStatus.textContent =
       "Logging in...";
 
-
     try {
 
-      const {
-        data,
-        error
-      } =
+      const { data, error } =
         await supabase.auth.signInWithPassword({
           email,
           password
         });
 
-
       if (error) {
         throw error;
       }
 
+      await loadPremiumStatus(
+        data.user
+      );
 
-      if (data.user) {
-
-        await loadPremiumStatus(
-          data.user
-        );
-
-
-        authStatus.textContent =
-          "Login successful.";
-      }
-
+      authStatus.textContent =
+        "Login successful.";
 
     } catch (err) {
 
-      console.error(
-        "Login error:",
-        err
-      );
-
+      console.error(err);
 
       authStatus.textContent =
         err?.message ||
@@ -959,11 +666,8 @@ loginBtn.addEventListener(
 
     } finally {
 
-      signUpBtn.disabled =
-        false;
-
-      loginBtn.disabled =
-        false;
+      signUpBtn.disabled = false;
+      loginBtn.disabled = false;
     }
   }
 );
@@ -979,29 +683,19 @@ logoutBtn.addEventListener(
 
     await supabase.auth.signOut();
 
-
-    currentUser =
-      null;
-
-    isPremium =
-      false;
-
+    currentUser = null;
+    isPremium = false;
 
     removeFile();
 
+    loginBox.classList.remove("hidden");
+    accountBox.classList.add("hidden");
 
-    loginBox.classList.remove(
-      "hidden"
-    );
-
-    accountBox.classList.add(
-      "hidden"
-    );
-
+    authEmail.value = "";
+    authPassword.value = "";
 
     authStatus.textContent =
       "Logged out.";
-
 
     updateProcessButton();
   }
@@ -1009,25 +703,21 @@ logoutBtn.addEventListener(
 
 
 // ========================================
-// AUTH STATE CHANGE
+// AUTH STATE
 // ========================================
 
 supabase.auth.onAuthStateChange(
-  async (
-    _event,
-    session
-  ) => {
+  async (_event, session) => {
 
     await loadPremiumStatus(
-      session?.user ||
-      null
+      session?.user || null
     );
   }
 );
 
 
 // ========================================
-// INITIAL SESSION
+// RESTORE LOGIN SESSION
 // ========================================
 
 const {
@@ -1038,14 +728,16 @@ const {
   await supabase.auth.getSession();
 
 
+// User automatically stays logged in
+// until LOGOUT is pressed.
+
 await loadPremiumStatus(
-  session?.user ||
-  null
+  session?.user || null
 );
 
 
 // ========================================
-// SELECT BUTTON
+// PICK BUTTON
 // ========================================
 
 pickBtn.addEventListener(
@@ -1053,7 +745,6 @@ pickBtn.addEventListener(
   () => {
 
     clearError();
-
 
     if (!currentUser) {
 
@@ -1064,7 +755,6 @@ pickBtn.addEventListener(
       return;
     }
 
-
     if (!isPremium) {
 
       showError(
@@ -1073,7 +763,6 @@ pickBtn.addEventListener(
 
       return;
     }
-
 
     fileInput.click();
   }
@@ -1088,14 +777,10 @@ fileInput.addEventListener(
   "change",
   () => {
 
-    const file =
-      fileInput.files?.[0];
-
-
-    if (file) {
+    if (fileInput.files?.[0]) {
 
       selectFile(
-        file
+        fileInput.files[0]
       );
     }
   }
@@ -1113,7 +798,7 @@ removeBtn.addEventListener(
 
 
 // ========================================
-// PATCH VIDEO
+// PATCH
 // ========================================
 
 processBtn.addEventListener(
@@ -1129,7 +814,6 @@ processBtn.addEventListener(
       return;
     }
 
-
     if (!isPremium) {
 
       showError(
@@ -1139,19 +823,14 @@ processBtn.addEventListener(
       return;
     }
 
-
     if (!selectedFile) {
       return;
     }
 
-
     clearError();
-
     resetOutput();
 
-
-    processBtn.disabled =
-      true;
+    processBtn.disabled = true;
 
     spinner.classList.remove(
       "hidden"
@@ -1161,17 +840,13 @@ processBtn.addEventListener(
       "hidden"
     );
 
-
     setProgress(
       2,
       "Reading video…"
     );
 
-
     try {
 
-      // Give mobile browser
-      // a small breathing time.
       await new Promise(
         (resolve) =>
           setTimeout(
@@ -1180,43 +855,25 @@ processBtn.addEventListener(
           )
       );
 
-
-      // ==================================
-      // READ VIDEO
-      // ==================================
-
       const source =
         await selectedFile.arrayBuffer();
-
 
       setProgress(
         18,
         "Normalizing MP4 container…"
       );
 
-
       const inputBytes =
-        new Uint8Array(
-          source
-        );
-
+        new Uint8Array(source);
 
       const inputView =
-        new DataView(
-          source
-        );
-
-
-      // ==================================
-      // NORMALIZE
-      // ==================================
+        new DataView(source);
 
       const normalized =
         normalizeContainer(
           inputBytes,
           inputView
         );
-
 
       if (!normalized.valid) {
 
@@ -1225,16 +882,10 @@ processBtn.addEventListener(
         );
       }
 
-
       setProgress(
         42,
         "Applying 10× sample-table inflation…"
       );
-
-
-      // ==================================
-      // INFLATE
-      // ==================================
 
       const inflated =
         inflateSampleTableVideo(
@@ -1243,46 +894,26 @@ processBtn.addEventListener(
           10
         );
 
-
       setProgress(
         88,
         "Building download file…"
       );
 
-
-      // ==================================
-      // CREATE OUTPUT
-      // ==================================
-
       const finalBuffer =
         inflated.newBuffer;
 
-
       outputBlob =
         new Blob(
-          [
-            finalBuffer
-          ],
+          [finalBuffer],
           {
-            type:
-              "video/mp4"
+            type: "video/mp4"
           }
         );
-
-
-      // ==================================
-      // CREATE DOWNLOAD URL IMMEDIATELY
-      // ==================================
 
       outputUrl =
         URL.createObjectURL(
           outputBlob
         );
-
-
-      // ==================================
-      // OUTPUT NAME
-      // ==================================
 
       const base =
         selectedFile.name.replace(
@@ -1290,29 +921,20 @@ processBtn.addEventListener(
           ""
         );
 
-
       outputName =
         `${base}_TL-NoBlur.mp4`;
-
-
-      // ==================================
-      // COMPLETE
-      // ==================================
 
       setProgress(
         100,
         "Complete"
       );
 
-
       resultMeta.textContent =
         `${formatBytes(outputBlob.size)} • original video stream not re-encoded`;
-
 
       result.classList.remove(
         "hidden"
       );
-
 
     } catch (err) {
 
@@ -1321,7 +943,6 @@ processBtn.addEventListener(
         err
       );
 
-
       showError(
         `Patch failed: ${
           err?.message ||
@@ -1329,12 +950,10 @@ processBtn.addEventListener(
         }`
       );
 
-
       setProgress(
         0,
         "Failed"
       );
-
 
     } finally {
 
@@ -1342,20 +961,12 @@ processBtn.addEventListener(
         "hidden"
       );
 
-
       updateProcessButton();
 
-
-      if (outputBlob) {
-
-        processText.textContent =
-          "PATCH AGAIN";
-
-      } else {
-
-        processText.textContent =
-          "PATCH VIDEO";
-      }
+      processText.textContent =
+        outputBlob
+          ? "PATCH AGAIN"
+          : "PATCH VIDEO";
     }
   }
 );
@@ -1381,9 +992,92 @@ downloadBtn.addEventListener(
       return;
     }
 
-
     clearError();
 
-
     const oldText =
-      download
+      downloadBtn.textContent;
+
+    downloadBtn.disabled = true;
+
+    downloadBtn.textContent =
+      "DOWNLOADING...";
+
+    try {
+
+      const a =
+        document.createElement("a");
+
+      a.href =
+        outputUrl;
+
+      a.download =
+        outputName;
+
+      a.rel =
+        "noopener";
+
+      a.style.display =
+        "none";
+
+      document.body.appendChild(a);
+
+      a.click();
+
+      a.remove();
+
+      await new Promise(
+        (resolve) =>
+          setTimeout(
+            resolve,
+            1500
+          )
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Download error:",
+        err
+      );
+
+      showError(
+        "Download failed. Try opening the website in Chrome."
+      );
+
+    } finally {
+
+      downloadBtn.disabled = false;
+
+      downloadBtn.textContent =
+        oldText;
+    }
+  }
+);
+
+
+// ========================================
+// CLEANUP
+// ========================================
+
+window.addEventListener(
+  "beforeunload",
+  () => {
+
+    if (outputUrl) {
+
+      URL.revokeObjectURL(
+        outputUrl
+      );
+    }
+
+    if (
+      preview.src &&
+      preview.src.startsWith("blob:")
+    ) {
+
+      URL.revokeObjectURL(
+        preview.src
+      );
+    }
+  }
+);
