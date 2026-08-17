@@ -1,5 +1,7 @@
 // ============================================================
 // TL NoBlur - app.js
+// LOGIN + SIGN UP + FREE 2 DAYS + PATCH + DOWNLOAD
+// + TIKTOK STUDIO
 // ============================================================
 
 import { createClient } from
@@ -7,7 +9,19 @@ import { createClient } from
 
 
 // ============================================================
-// SUPABASE
+// 1. SUPABASE CONFIG
+// ============================================================
+// IMPORTANT:
+// Replace these 2 values with your own Supabase values.
+//
+// Supabase:
+// Project Settings → API
+//
+// Use:
+// Project URL
+// Publishable key
+//
+// DO NOT put service_role key here.
 // ============================================================
 
 const SUPABASE_URL =
@@ -31,24 +45,27 @@ const supabase = createClient(
 
 
 // ============================================================
-// NO BLUR
+// 2. NO BLUR MODULE
 // ============================================================
 
-const { normalizeContainer } = await import(
+const {
+  normalizeContainer
+} = await import(
   "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-normalize.mjs"
 );
 
 
 // ============================================================
-// ELEMENT HELPER
+// 3. ELEMENT HELPER
 // ============================================================
 
-const $ = (id) =>
-  document.getElementById(id);
+function $(id) {
+  return document.getElementById(id);
+}
 
 
 // ============================================================
-// AUTH
+// 4. AUTH ELEMENTS
 // ============================================================
 
 const loginBox =
@@ -83,7 +100,7 @@ const premiumStatus =
 
 
 // ============================================================
-// VIDEO
+// 5. VIDEO ELEMENTS
 // ============================================================
 
 const fileInput =
@@ -112,7 +129,7 @@ const removeBtn =
 
 
 // ============================================================
-// PATCH
+// 6. PATCH ELEMENTS
 // ============================================================
 
 const processBtn =
@@ -138,7 +155,7 @@ const barFill =
 
 
 // ============================================================
-// RESULT
+// 7. RESULT
 // ============================================================
 
 const result =
@@ -152,7 +169,7 @@ const downloadBtn =
 
 
 // ============================================================
-// DOWNLOAD
+// 8. DOWNLOAD
 // ============================================================
 
 const downloadProgress =
@@ -172,7 +189,7 @@ const downloadDone =
 
 
 // ============================================================
-// ERROR
+// 9. ERROR
 // ============================================================
 
 const errorBox =
@@ -180,7 +197,7 @@ const errorBox =
 
 
 // ============================================================
-// TIKTOK STUDIO
+// 10. TIKTOK
 // ============================================================
 
 const tiktokStudioBtn =
@@ -188,34 +205,37 @@ const tiktokStudioBtn =
 
 
 // ============================================================
-// STATE
+// 11. STATE
 // ============================================================
 
-let currentUser = null;
+let currentUser =
+  null;
 
-let currentProfile = null;
+let currentProfile =
+  null;
 
-let selectedFile = null;
+let selectedFile =
+  null;
 
-let outputBlob = null;
+let outputBlob =
+  null;
 
-let outputName = "";
+let outputName =
+  "";
 
 
 // ============================================================
-// PREMIUM / FREE ACCESS
+// 12. FREE / PREMIUM ACCESS
 // ============================================================
 //
-// Free account also uses premium_until.
-// Example:
-//
+// Free user:
 // premium_until = now + 2 days
 //
-// When date is still future:
-// ACCESS = TRUE
+// Premium:
+// premium_until = paid expiry
 //
-// When date has expired:
-// ACCESS = FALSE
+// If premium_until > current time:
+// ACCESS = TRUE
 //
 // ============================================================
 
@@ -239,7 +259,7 @@ function hasAccess() {
 
 
 // ============================================================
-// FORMAT BYTES
+// 13. FORMAT BYTES
 // ============================================================
 
 function formatBytes(bytes) {
@@ -274,7 +294,9 @@ function formatBytes(bytes) {
 
   return (
     value.toFixed(
-      index === 0 ? 0 : 2
+      index === 0
+        ? 0
+        : 2
     )
     + " "
     + units[index]
@@ -283,7 +305,7 @@ function formatBytes(bytes) {
 
 
 // ============================================================
-// FORMAT DURATION
+// 14. FORMAT VIDEO TIME
 // ============================================================
 
 function formatDuration(seconds) {
@@ -314,7 +336,7 @@ function formatDuration(seconds) {
 
 
 // ============================================================
-// ERROR
+// 15. ERROR
 // ============================================================
 
 function showError(message) {
@@ -340,7 +362,7 @@ function clearError() {
 
 
 // ============================================================
-// AUTH STATUS
+// 16. AUTH STATUS
 // ============================================================
 
 function setAuthStatus(
@@ -359,7 +381,7 @@ function setAuthStatus(
 
 
 // ============================================================
-// PATCH PROGRESS
+// 17. PATCH PROGRESS
 // ============================================================
 
 function setProgress(
@@ -390,7 +412,7 @@ function setProgress(
 
 
 // ============================================================
-// DOWNLOAD PROGRESS
+// 18. DOWNLOAD PROGRESS
 // ============================================================
 
 function setDownloadProgress(
@@ -421,14 +443,16 @@ function setDownloadProgress(
 
 
 // ============================================================
-// RESET OUTPUT
+// 19. RESET OUTPUT
 // ============================================================
 
 function resetOutput() {
 
-  outputBlob = null;
+  outputBlob =
+    null;
 
-  outputName = "";
+  outputName =
+    "";
 
   result.classList.add(
     "hidden"
@@ -458,7 +482,7 @@ function resetOutput() {
 
 
 // ============================================================
-// UPDATE PATCH BUTTON
+// 20. UPDATE PATCH BUTTON
 // ============================================================
 
 function updatePatchButton() {
@@ -474,11 +498,6 @@ function updatePatchButton() {
     return;
   }
 
-
-  // IMPORTANT:
-  // Free 2 Days is allowed here.
-  // We only check whether access
-  // has expired.
 
   if (!hasAccess()) {
 
@@ -513,7 +532,7 @@ function updatePatchButton() {
 
 
 // ============================================================
-// LOAD PROFILE
+// 21. LOAD PROFILE
 // ============================================================
 
 async function loadProfile(
@@ -534,7 +553,7 @@ async function loadProfile(
   if (error) {
 
     console.error(
-      "Profile error:",
+      "PROFILE ERROR:",
       error
     );
 
@@ -549,7 +568,7 @@ async function loadProfile(
   if (!data) {
 
     premiumStatus.textContent =
-      "No access";
+      "⚠️ Profile not found";
 
     updatePatchButton();
 
@@ -565,25 +584,25 @@ async function loadProfile(
       );
 
 
-    let planText =
+    const plan =
       data.plan ||
       "Free";
 
 
     if (
-      planText.toLowerCase()
+      String(plan)
+        .toLowerCase()
         === "free"
     ) {
 
       premiumStatus.textContent =
-        `🆓 Free • until ${expiry.toLocaleString()}`;
+        `🆓 Free • expires ${expiry.toLocaleString()}`;
 
     } else {
 
       premiumStatus.textContent =
-        `👑 ${planText} • until ${expiry.toLocaleString()}`;
+        `👑 ${plan} • expires ${expiry.toLocaleString()}`;
     }
-
 
   } else {
 
@@ -597,7 +616,7 @@ async function loadProfile(
 
 
 // ============================================================
-// UPDATE USER
+// 22. UPDATE USER UI
 // ============================================================
 
 async function updateUser(
@@ -652,7 +671,9 @@ async function updateUser(
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     premiumStatus.textContent =
       "Profile error";
@@ -661,7 +682,7 @@ async function updateUser(
 
 
 // ============================================================
-// SIGN UP
+// 23. SIGN UP
 // ============================================================
 
 signUpBtn.addEventListener(
@@ -670,6 +691,7 @@ signUpBtn.addEventListener(
 
     clearError();
 
+
     const email =
       authEmail.value.trim();
 
@@ -677,11 +699,25 @@ signUpBtn.addEventListener(
       authPassword.value;
 
 
-    if (!email || !password) {
+    if (!email) {
 
       setAuthStatus(
-        "Please enter email and password."
+        "Please enter your email."
       );
+
+      authEmail.focus();
+
+      return;
+    }
+
+
+    if (!password) {
+
+      setAuthStatus(
+        "Please enter your password."
+      );
+
+      authPassword.focus();
 
       return;
     }
@@ -726,6 +762,14 @@ signUpBtn.addEventListener(
       }
 
 
+      /*
+       * If Supabase Email Confirmation
+       * is OFF, session will exist here.
+       *
+       * If Email Confirmation is ON,
+       * user must confirm email first.
+       */
+
       if (data.session) {
 
         await updateUser(
@@ -733,7 +777,7 @@ signUpBtn.addEventListener(
         );
 
         setAuthStatus(
-          "Account created successfully.",
+          "Account created successfully ✓",
           true
         );
 
@@ -748,7 +792,10 @@ signUpBtn.addEventListener(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "SIGN UP ERROR:",
+        error
+      );
 
       setAuthStatus(
         error?.message ||
@@ -769,7 +816,7 @@ signUpBtn.addEventListener(
 
 
 // ============================================================
-// LOGIN
+// 24. LOGIN
 // ============================================================
 
 loginBtn.addEventListener(
@@ -778,6 +825,7 @@ loginBtn.addEventListener(
 
     clearError();
 
+
     const email =
       authEmail.value.trim();
 
@@ -785,11 +833,25 @@ loginBtn.addEventListener(
       authPassword.value;
 
 
-    if (!email || !password) {
+    if (!email) {
 
       setAuthStatus(
-        "Please enter email and password."
+        "Please enter your email."
       );
+
+      authEmail.focus();
+
+      return;
+    }
+
+
+    if (!password) {
+
+      setAuthStatus(
+        "Please enter your password."
+      );
+
+      authPassword.focus();
 
       return;
     }
@@ -802,12 +864,22 @@ loginBtn.addEventListener(
       true;
 
 
+    loginBtn.textContent =
+      "LOGGING IN...";
+
+
     setAuthStatus(
-      "Logging in..."
+      "Connecting to Supabase..."
     );
 
 
     try {
+
+      console.log(
+        "LOGIN START:",
+        email
+      );
+
 
       const {
         data,
@@ -815,13 +887,33 @@ loginBtn.addEventListener(
       } =
         await supabase.auth
           .signInWithPassword({
-            email,
-            password
+
+            email:
+              email,
+
+            password:
+              password
+
           });
+
+
+      console.log(
+        "LOGIN RESPONSE:",
+        data,
+        error
+      );
 
 
       if (error) {
         throw error;
+      }
+
+
+      if (!data?.user) {
+
+        throw new Error(
+          "Login succeeded but no user was returned."
+        );
       }
 
 
@@ -831,14 +923,18 @@ loginBtn.addEventListener(
 
 
       setAuthStatus(
-        "Login successful.",
+        "Login successful ✓",
         true
       );
 
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
+
 
       setAuthStatus(
         error?.message ||
@@ -852,6 +948,9 @@ loginBtn.addEventListener(
 
       signUpBtn.disabled =
         false;
+
+      loginBtn.textContent =
+        "LOGIN";
     }
 
   }
@@ -859,7 +958,7 @@ loginBtn.addEventListener(
 
 
 // ============================================================
-// LOGOUT
+// 25. LOGOUT
 // ============================================================
 
 logoutBtn.addEventListener(
@@ -872,7 +971,10 @@ logoutBtn.addEventListener(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
     }
 
 
@@ -898,7 +1000,7 @@ logoutBtn.addEventListener(
     resetOutput();
 
 
-    updateUser(
+    await updateUser(
       null
     );
 
@@ -907,16 +1009,16 @@ logoutBtn.addEventListener(
 
 
 // ============================================================
-// SESSION
+// 26. AUTH SESSION
 // ============================================================
 
 supabase.auth.onAuthStateChange(
   (_event, session) => {
 
     setTimeout(
-      () => {
+      async () => {
 
-        updateUser(
+        await updateUser(
           session?.user ||
           null
         );
@@ -930,30 +1032,43 @@ supabase.auth.onAuthStateChange(
 
 
 // ============================================================
-// INITIAL SESSION
+// 27. INITIAL SESSION
 // ============================================================
 
 async function initAuth() {
 
-  const {
-    data,
-    error
-  } =
-    await supabase.auth.getSession();
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabase.auth.getSession();
 
 
-  if (error) {
+    if (error) {
 
-    console.error(error);
+      console.error(
+        "SESSION ERROR:",
+        error
+      );
 
-    return;
+      return;
+    }
+
+
+    await updateUser(
+      data.session?.user ||
+      null
+    );
+
+  } catch (error) {
+
+    console.error(
+      "AUTH INIT ERROR:",
+      error
+    );
   }
-
-
-  await updateUser(
-    data.session?.user ||
-    null
-  );
 }
 
 
@@ -961,12 +1076,7 @@ await initAuth();
 
 
 // ============================================================
-// PLAN BUTTONS
-// ============================================================
-//
-// Payment will be connected later.
-// The HTML plan buttons remain separate
-// from the video patch button.
+// 28. PREMIUM PLAN BUTTONS
 // ============================================================
 
 const PLAN_NAMES = {
@@ -1002,14 +1112,14 @@ const PLAN_NAMES = {
 document
   .querySelectorAll(".plan")
   .forEach(
-    (planButton) => {
+    (button) => {
 
-      planButton.addEventListener(
+      button.addEventListener(
         "click",
         () => {
 
           const planId =
-            planButton.dataset.plan;
+            button.dataset.plan;
 
 
           if (
@@ -1017,7 +1127,7 @@ document
           ) {
 
             alert(
-              "🆓 Free access = 2 Days."
+              "🆓 Free plan = 2 Days."
             );
 
             return;
@@ -1051,23 +1161,22 @@ document
 
 
           /*
-           * Payment integration:
+           * PAYMENT WILL BE CONNECTED
+           * TO SUPABASE EDGE FUNCTION.
            *
-           * planId = week
-           * server must set amount = $2
+           * IMPORTANT:
+           * Server must decide amount.
            *
-           * planId = month
-           * server must set amount = $5
-           *
-           * etc.
-           *
-           * Do NOT trust an amount sent
-           * from the browser.
+           * week        = $2
+           * month      = $5
+           * three_month = $9
+           * six_month  = $19
+           * year       = $29
            */
 
 
           alert(
-            `${plan.name}\nPrice: $${plan.amount}.00 USD\n\nPayment system will open here.`
+            `${plan.name}\n\nPrice: $${plan.amount}.00 USD\n\nPayment system will be connected here.`
           );
 
         }
@@ -1078,7 +1187,7 @@ document
 
 
 // ============================================================
-// SELECT VIDEO
+// 29. SELECT VIDEO
 // ============================================================
 
 pickBtn.addEventListener(
@@ -1093,6 +1202,8 @@ pickBtn.addEventListener(
       showError(
         "Please LOGIN first."
       );
+
+      authEmail.focus();
 
       return;
     }
@@ -1115,7 +1226,7 @@ pickBtn.addEventListener(
 
 
 // ============================================================
-// FILE SELECTED
+// 30. FILE SELECTED
 // ============================================================
 
 fileInput.addEventListener(
@@ -1134,17 +1245,17 @@ fileInput.addEventListener(
     clearError();
 
 
-    const filename =
+    const name =
       file.name.toLowerCase();
 
 
     if (
-      !filename.endsWith(".mp4") &&
-      !filename.endsWith(".mov")
+      !name.endsWith(".mp4") &&
+      !name.endsWith(".mov")
     ) {
 
       showError(
-        "Please select MP4 or MOV."
+        "Please select an MP4 or MOV video."
       );
 
       fileInput.value =
@@ -1206,7 +1317,7 @@ fileInput.addEventListener(
 
 
 // ============================================================
-// REMOVE VIDEO
+// 31. REMOVE VIDEO
 // ============================================================
 
 removeBtn.addEventListener(
@@ -1251,132 +1362,9 @@ removeBtn.addEventListener(
 
 
 // ============================================================
-// PATCH VIDEO
+// 32. PATCH VIDEO
 // ============================================================
-//
-// BUTTON 1
 //
 // SELECT VIDEO
-//       ↓
-// PATCH VIDEO
-//       ↓
-// PROGRESS
-//       ↓
-// PATCH COMPLETE
+//      ↓
 //
-// ============================================================
-
-processBtn.addEventListener(
-  "click",
-  async () => {
-
-    clearError();
-
-
-    if (!currentUser) {
-
-      showError(
-        "Please LOGIN first."
-      );
-
-      return;
-    }
-
-
-    if (!hasAccess()) {
-
-      showError(
-        "Your Free/Premium access has expired."
-      );
-
-      return;
-    }
-
-
-    if (!selectedFile) {
-
-      showError(
-        "Please select a video."
-      );
-
-      return;
-    }
-
-
-    processBtn.disabled =
-      true;
-
-    spinner.classList.remove(
-      "hidden"
-    );
-
-
-    processText.textContent =
-      "PATCHING...";
-
-
-    progressBox.classList.remove(
-      "hidden"
-    );
-
-
-    result.classList.add(
-      "hidden"
-    );
-
-
-    setProgress(
-      0,
-      "Preparing..."
-    );
-
-
-    try {
-
-      await new Promise(
-        resolve =>
-          setTimeout(
-            resolve,
-            30
-          )
-      );
-
-
-      setProgress(
-        10,
-        "Reading video..."
-      );
-
-
-      const buffer =
-        await selectedFile.arrayBuffer();
-
-
-      setProgress(
-        25,
-        "Normalizing MP4 container..."
-      );
-
-
-      const bytes =
-        new Uint8Array(
-          buffer
-        );
-
-
-      const view =
-        new DataView(
-          buffer
-        );
-
-
-      const normalized =
-        normalizeContainer(
-          bytes,
-          view
-        );
-
-
-      if (
-        !normalized ||
-        !normalized.valid
