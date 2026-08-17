@@ -51,9 +51,7 @@
       padding: 20px 15px 45px;
     }
 
-    /* =========================
-       HEADER
-    ========================== */
+    /* ================= HEADER ================= */
 
     .topbar {
       display: flex;
@@ -100,9 +98,7 @@
       white-space: nowrap;
     }
 
-    /* =========================
-       AUTH
-    ========================== */
+    /* ================= AUTH ================= */
 
     .auth-card {
       margin-bottom: 18px;
@@ -200,9 +196,7 @@
       font-weight: 800;
     }
 
-    /* =========================
-       PREMIUM PLANS
-    ========================== */
+    /* ================= PLANS ================= */
 
     .premium-card {
       margin-bottom: 20px;
@@ -267,9 +261,7 @@
       white-space: nowrap;
     }
 
-    /* =========================
-       HERO
-    ========================== */
+    /* ================= HERO ================= */
 
     .hero {
       margin: 30px 0 20px;
@@ -298,9 +290,7 @@
       line-height: 1.6;
     }
 
-    /* =========================
-       VIDEO CARD
-    ========================== */
+    /* ================= VIDEO CARD ================= */
 
     .card {
       padding: 18px;
@@ -328,10 +318,6 @@
       border-color: #777;
     }
 
-    .dropzone:active {
-      background: #111;
-    }
-
     .upload-icon {
       font-size: 45px;
       color: #aaa;
@@ -347,9 +333,7 @@
       text-align: center;
     }
 
-    /* =========================
-       FILE
-    ========================== */
+    /* ================= FILE ================= */
 
     .file-panel {
       margin-top: 14px;
@@ -410,9 +394,7 @@
       flex-shrink: 0;
     }
 
-    /* =========================
-       MODE
-    ========================== */
+    /* ================= MODE ================= */
 
     .settings {
       margin-top: 18px;
@@ -453,12 +435,9 @@
       background: #fff;
       color: #000;
       font-weight: 900;
-      white-space: nowrap;
     }
 
-    /* =========================
-       PATCH BUTTON
-    ========================== */
+    /* ================= PATCH ================= */
 
     .patch-btn {
       width: 100%;
@@ -478,13 +457,7 @@
       cursor: not-allowed;
     }
 
-    .patch-btn:not(:disabled):active {
-      transform: scale(.99);
-    }
-
-    /* =========================
-       SPINNER
-    ========================== */
+    /* ================= SPINNER ================= */
 
     .spinner {
       display: inline-block;
@@ -504,9 +477,7 @@
       }
     }
 
-    /* =========================
-       PATCH PROGRESS
-    ========================== */
+    /* ================= PROGRESS ================= */
 
     .progress-box {
       margin-top: 15px;
@@ -540,9 +511,7 @@
       transition: width .15s;
     }
 
-    /* =========================
-       RESULT
-    ========================== */
+    /* ================= RESULT ================= */
 
     .result {
       margin-top: 16px;
@@ -588,9 +557,7 @@
       font-size: 12px;
     }
 
-    /* =========================
-       DOWNLOAD BUTTON
-    ========================== */
+    /* ================= DOWNLOAD ================= */
 
     .download-btn {
       width: 100%;
@@ -604,37 +571,10 @@
       font-weight: 900;
     }
 
-    .download-btn:active {
-      transform: scale(.99);
+    .download-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
     }
-
-    /* =========================
-       TIKTOK BUTTON
-    ========================== */
-
-    .tiktok-btn {
-      width: 100%;
-      min-height: 55px;
-      margin-top: 10px;
-      border: 1px solid #444;
-      border-radius: 14px;
-      background: #181818;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 900;
-    }
-
-    .tiktok-btn:hover {
-      background: #242424;
-    }
-
-    .tiktok-btn:active {
-      background: #303030;
-    }
-
-    /* =========================
-       DOWNLOAD PROGRESS
-    ========================== */
 
     .download-progress {
       margin-top: 14px;
@@ -674,9 +614,25 @@
       font-size: 12px;
     }
 
-    /* =========================
-       ERROR
-    ========================== */
+    /* ================= TIKTOK ================= */
+
+    .tiktok-btn {
+      width: 100%;
+      min-height: 55px;
+      margin-top: 10px;
+      border: 1px solid #444;
+      border-radius: 14px;
+      background: #181818;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .tiktok-btn:hover {
+      background: #242424;
+    }
+
+    /* ================= ERROR ================= */
 
     .error {
       margin-top: 14px;
@@ -688,9 +644,7 @@
       line-height: 1.5;
     }
 
-    /* =========================
-       NOTES
-    ========================== */
+    /* ================= NOTES ================= */
 
     .notes {
       display: grid;
@@ -725,12 +679,7 @@
       font-size: 11px;
     }
 
-    /* =========================
-       MOBILE
-    ========================== */
-
     @media (max-width: 600px) {
-
       .privacy {
         display: none;
       }
@@ -751,10 +700,6 @@
       .hero h1 {
         font-size: 50px;
       }
-
-      .plan {
-        padding: 15px 2px;
-      }
     }
   </style>
 </head>
@@ -763,9 +708,7 @@
 
 <main class="app">
 
-  <!-- ======================================================
-       HEADER
-  ======================================================= -->
+  <!-- HEADER -->
 
   <header class="topbar">
 
@@ -776,7 +719,6 @@
       </div>
 
       <div>
-
         <div class="brand-name">
           TL NoBlur
         </div>
@@ -784,7 +726,6 @@
         <div class="brand-sub">
           Video Quality Patcher
         </div>
-
       </div>
 
     </div>
@@ -796,13 +737,9 @@
   </header>
 
 
-  <!-- ======================================================
-       LOGIN / ACCOUNT
-  ======================================================= -->
+  <!-- LOGIN / ACCOUNT -->
 
   <section class="auth-card">
-
-    <!-- LOGIN BOX -->
 
     <div id="loginBox">
 
@@ -850,8 +787,6 @@
     </div>
 
 
-    <!-- ACCOUNT BOX -->
-
     <div
       id="accountBox"
       class="hidden"
@@ -892,9 +827,7 @@
   </section>
 
 
-  <!-- ======================================================
-       PREMIUM PLANS
-  ======================================================= -->
+  <!-- PREMIUM PLANS -->
 
   <section class="premium-card">
 
@@ -903,11 +836,9 @@
     </div>
 
     <div class="premium-sub">
-      Free access and premium plans
+      Choose your access plan
     </div>
 
-
-    <!-- FREE -->
 
     <button
       class="plan"
@@ -916,7 +847,6 @@
     >
 
       <div>
-
         <div class="plan-name">
           🆓 Free
         </div>
@@ -924,7 +854,6 @@
         <div class="plan-duration">
           2 Days
         </div>
-
       </div>
 
       <div class="plan-price">
@@ -934,8 +863,6 @@
     </button>
 
 
-    <!-- $2 -->
-
     <button
       class="plan"
       type="button"
@@ -943,7 +870,6 @@
     >
 
       <div>
-
         <div class="plan-name">
           ⭐ 1 Week
         </div>
@@ -951,7 +877,6 @@
         <div class="plan-duration">
           Premium access
         </div>
-
       </div>
 
       <div class="plan-price">
@@ -961,8 +886,6 @@
     </button>
 
 
-    <!-- $5 -->
-
     <button
       class="plan"
       type="button"
@@ -970,7 +893,6 @@
     >
 
       <div>
-
         <div class="plan-name">
           🔥 1 Month
         </div>
@@ -978,7 +900,6 @@
         <div class="plan-duration">
           Premium access
         </div>
-
       </div>
 
       <div class="plan-price">
@@ -988,8 +909,6 @@
     </button>
 
 
-    <!-- $9 -->
-
     <button
       class="plan"
       type="button"
@@ -997,7 +916,6 @@
     >
 
       <div>
-
         <div class="plan-name">
           💎 3 Months
         </div>
@@ -1005,7 +923,6 @@
         <div class="plan-duration">
           Premium access
         </div>
-
       </div>
 
       <div class="plan-price">
@@ -1015,8 +932,6 @@
     </button>
 
 
-    <!-- $19 -->
-
     <button
       class="plan"
       type="button"
@@ -1024,7 +939,6 @@
     >
 
       <div>
-
         <div class="plan-name">
           👑 6 Months
         </div>
@@ -1032,7 +946,6 @@
         <div class="plan-duration">
           Premium access
         </div>
-
       </div>
 
       <div class="plan-price">
@@ -1042,8 +955,6 @@
     </button>
 
 
-    <!-- $29 -->
-
     <button
       class="plan"
       type="button"
@@ -1051,7 +962,6 @@
     >
 
       <div>
-
         <div class="plan-name">
           🏆 1 Year
         </div>
@@ -1059,7 +969,6 @@
         <div class="plan-duration">
           Premium access
         </div>
-
       </div>
 
       <div class="plan-price">
@@ -1071,9 +980,7 @@
   </section>
 
 
-  <!-- ======================================================
-       HERO
-  ======================================================= -->
+  <!-- HERO -->
 
   <section class="hero">
 
@@ -1083,7 +990,6 @@
 
     <h1>
       Patch your video.<br>
-
       <span>
         Keep the original stream.
       </span>
@@ -1097,13 +1003,9 @@
   </section>
 
 
-  <!-- ======================================================
-       VIDEO CARD
-  ======================================================= -->
+  <!-- VIDEO CARD -->
 
   <section class="card">
-
-    <!-- FILE INPUT -->
 
     <input
       id="fileInput"
@@ -1113,9 +1015,7 @@
     >
 
 
-    <!-- ====================================================
-         SELECT VIDEO BUTTON
-    ===================================================== -->
+    <!-- SELECT VIDEO -->
 
     <button
       id="pickBtn"
@@ -1138,9 +1038,7 @@
     </button>
 
 
-    <!-- ====================================================
-         SELECTED FILE
-    ===================================================== -->
+    <!-- FILE -->
 
     <div
       id="filePanel"
@@ -1189,10 +1087,150 @@
     </div>
 
 
-    <!-- ====================================================
-         MODE
-    ===================================================== -->
+    <!-- MODE -->
 
     <div class="settings">
 
-      <div class="se
+      <div class="setting-title">
+        MODE
+      </div>
+
+      <div class="mode">
+
+        <div>
+
+          <strong>
+            Inflate
+          </strong>
+
+          <p>
+            Non-interpolation • no video re-encode
+          </p>
+
+        </div>
+
+        <span class="badge">
+          10×
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- PATCH BUTTON -->
+
+    <button
+      id="processBtn"
+      class="patch-btn"
+      type="button"
+      disabled
+    >
+
+      <span id="processText">
+        LOGIN TO PATCH
+      </span>
+
+      <span
+        id="spinner"
+        class="spinner hidden"
+      ></span>
+
+    </button>
+
+
+    <!-- PATCH PROGRESS -->
+
+    <div
+      id="progressBox"
+      class="progress-box hidden"
+    >
+
+      <div class="progress-head">
+
+        <span id="status">
+          Preparing...
+        </span>
+
+        <span id="percent">
+          0%
+        </span>
+
+      </div>
+
+      <div class="bar">
+        <div id="barFill"></div>
+      </div>
+
+    </div>
+
+
+    <!-- RESULT -->
+
+    <div
+      id="result"
+      class="result hidden"
+    >
+
+      <div class="result-top">
+
+        <div class="result-icon">
+          ✓
+        </div>
+
+        <div class="result-text">
+
+          <strong>
+            Patch Complete
+          </strong>
+
+          <span id="resultMeta">
+            Video is ready
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- DOWNLOAD BUTTON -->
+
+      <button
+        id="downloadBtn"
+        class="download-btn"
+        type="button"
+      >
+        DOWNLOAD VIDEO
+      </button>
+
+
+      <!-- DOWNLOAD PROGRESS -->
+
+      <div
+        id="downloadProgress"
+        class="download-progress hidden"
+      >
+
+        <div class="download-head">
+
+          <span id="downloadStatus">
+            Preparing download...
+          </span>
+
+          <span id="downloadPercent">
+            0%
+          </span>
+
+        </div>
+
+        <div class="download-track">
+
+          <div id="downloadBarFill"></div>
+
+        </div>
+
+        <div id="downloadDone">
+          Preparing video...
+        </div>
+
+   
