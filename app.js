@@ -1,16 +1,22 @@
+// ============================================================
+// TL NoBlur - app.js
+// Login + Premium Plans + ABA Payment Trigger + Video Patcher
+// ============================================================
+
 import { createClient } from
-  "https://esm.sh/@supabase/supabase-js@2";
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 
-// ==================================================
+// ============================================================
 // SUPABASE
-// ==================================================
+// ============================================================
 
 const SUPABASE_URL =
   "https://glpkadgmsaozmcebyrxw.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_UYD86Z2gQD5o8BMfuP5IHw__bIcUX0C";
+
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -25,43 +31,85 @@ const supabase = createClient(
 );
 
 
-// ==================================================
-// ELEMENTS
-// ==================================================
+// ============================================================
+// NO BLUR MODULES
+// ============================================================
 
-const $ = (id) =>
-  document.getElementById(id);
+const { normalizeContainer } = await import(
+  "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-normalize.mjs"
+);
+
+const { inflateSampleTableVideo } = await import(
+  "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-inflate.mjs"
+);
 
 
-// AUTH
+// ============================================================
+// HELPERS
+// ============================================================
+
+const $ = (id) => document.getElementById(id);
+
+
+// ============================================================
+// AUTH ELEMENTS
+// ============================================================
+
+const loginBox = $("loginBox");
+const accountBox = $("accountBox");
 
 const authEmail = $("authEmail");
 const authPassword = $("authPassword");
+
 const signUpBtn = $("signUpBtn");
 const loginBtn = $("loginBtn");
 const logoutBtn = $("logoutBtn");
 
-const loginBox = $("loginBox");
-const accountBox = $("accountBox");
+const authStatus = $("authStatus");
 const accountEmail = $("accountEmail");
 const premiumStatus = $("premiumStatus");
-const authStatus = $("authStatus");
 
 
-// VIDEO
+// ============================================================
+// PLAN ELEMENTS
+// ============================================================
+
+const plans = document.querySelectorAll(".plan");
+
+const paymentOverlay = $("paymentOverlay");
+const selectedPlanName = $("selectedPlanName");
+const selectedPlanAmount = $("selectedPlanAmount");
+
+const confirmPaymentBtn = $("confirmPaymentBtn");
+const cancelPaymentBtn = $("cancelPaymentBtn");
+
+let selectedPlanId = null;
+
+
+// ============================================================
+// VIDEO ELEMENTS
+// ============================================================
 
 const fileInput = $("fileInput");
 const pickBtn = $("pickBtn");
+
+const filePanel = $("filePanel");
+const preview = $("preview");
+
+const fileName = $("fileName");
+const fileStats = $("fileStats");
+const fileSize = $("fileSize");
+
+const removeBtn = $("removeBtn");
+
 const processBtn = $("processBtn");
 const processText = $("processText");
 const spinner = $("spinner");
 
-const filePanel = $("filePanel");
-const preview = $("preview");
-const fileName = $("fileName");
-const fileStats = $("fileStats");
-const fileSize = $("fileSize");
-const removeBtn = $("removeBtn");
+
+// ============================================================
+// PATCH PROGRESS
+// ============================================================
 
 const progressBox = $("progressBox");
 const status = $("status");
@@ -69,22 +117,15 @@ const percent = $("percent");
 const barFill = $("barFill");
 
 
+// ============================================================
 // DOWNLOAD
+// ============================================================
 
-const downloadProgress =
-  $("downloadProgress");
-
-const downloadStatus =
-  $("downloadStatus");
-
-const downloadPercent =
-  $("downloadPercent");
-
-const downloadBarFill =
-  $("downloadBarFill");
-
-const downloadDone =
-  $("downloadDone");
+const downloadProgress = $("downloadProgress");
+const downloadStatus = $("downloadStatus");
+const downloadPercent = $("downloadPercent");
+const downloadBarFill = $("downloadBarFill");
+const downloadDone = $("downloadDone");
 
 const result = $("result");
 const resultMeta = $("resultMeta");
@@ -93,43 +134,73 @@ const downloadBtn = $("downloadBtn");
 const errorBox = $("error");
 
 
-// ==================================================
+// ============================================================
 // STATE
-// ==================================================
-
-let selectedFile = null;
-let outputBlob = null;
-let outputName = "";
+// ============================================================
 
 let currentUser = null;
 let currentProfile = null;
 
+let selectedFile = null;
 
-// ==================================================
-// PATCH MODULES
-// ==================================================
-
-const {
-  normalizeContainer
-} = await import(
-  "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-normalize.mjs"
-);
-
-const {
-  inflateSampleTableVideo
-} = await import(
-  "https://cdn.jsdelivr.net/gh/irgifebry/NoBlur@main/src/mp4-inflate.mjs"
-);
+let outputBlob = null;
+let outputName = "";
 
 
-// ==================================================
-// HELPERS
-// ==================================================
+// ============================================================
+// PREMIUM PLANS
+// IMPORTANT:
+// These are UI values only.
+// Server MUST use its own locked prices.
+// ============================================================
+
+const PLANS = {
+
+  week: {
+    name: "⭐ 1 Week",
+    amount: 2.00,
+    days: 7
+  },
+
+  month: {
+    name: "🔥 1 Month",
+    amount: 5.00,
+    days: 30
+  },
+
+  three_month: {
+    name: "💎 3 Months",
+    amount: 9.00,
+    days: 90
+  },
+
+  six_month: {
+    name: "👑 6 Months",
+    amount: 19.00,
+    days: 180
+  },
+
+  year: {
+    name: "🏆 1 Year",
+    amount: 29.00,
+    days: 365
+  }
+
+};
+
+
+// ============================================================
+// FORMAT BYTES
+// ============================================================
 
 function formatBytes(bytes) {
 
   if (!Number.isFinite(bytes)) {
     return "—";
+  }
+
+  if (bytes === 0) {
+    return "0 B";
   }
 
   const units = [
@@ -139,73 +210,44 @@ function formatBytes(bytes) {
     "GB"
   ];
 
-  let n = bytes;
-  let i = 0;
-
-  while (
-    n >= 1024 &&
-    i < units.length - 1
-  ) {
-    n /= 1024;
-    i++;
-  }
-
-  return `${n.toFixed(i ? 2 : 0)} ${units[i]}`;
-}
-
-
-function setProgress(value, text) {
-
-  const n = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(value)
-    )
+  const index = Math.floor(
+    Math.log(bytes) / Math.log(1024)
   );
 
-  percent.textContent =
-    `${n}%`;
+  const value =
+    bytes / Math.pow(1024, index);
 
-  barFill.style.width =
-    `${n}%`;
-
-  if (text) {
-    status.textContent = text;
-  }
+  return `${value.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
 }
 
 
-function setDownloadProgress(
-  value,
-  text
-) {
+// ============================================================
+// FORMAT DURATION
+// ============================================================
 
-  const n = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(value)
-    )
-  );
+function formatDuration(seconds) {
 
-  downloadPercent.textContent =
-    `${n}%`;
-
-  downloadBarFill.style.width =
-    `${n}%`;
-
-  if (text) {
-    downloadStatus.textContent =
-      text;
+  if (!Number.isFinite(seconds)) {
+    return "—";
   }
+
+  const minutes =
+    Math.floor(seconds / 60);
+
+  const secs =
+    Math.floor(seconds % 60);
+
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
 
+
+// ============================================================
+// ERROR
+// ============================================================
 
 function showError(message) {
 
-  errorBox.textContent =
-    message;
+  errorBox.textContent = message;
 
   errorBox.classList.remove(
     "hidden"
@@ -223,6 +265,10 @@ function clearError() {
 }
 
 
+// ============================================================
+// AUTH STATUS
+// ============================================================
+
 function setAuthStatus(
   message,
   success = false
@@ -233,10 +279,76 @@ function setAuthStatus(
 
   authStatus.style.color =
     success
-      ? "#6ee7b7"
-      : "#ff8b8b";
+      ? "#72ff9c"
+      : "#ff7777";
 }
 
+
+// ============================================================
+// PATCH PROGRESS
+// ============================================================
+
+function setProgress(
+  value,
+  message
+) {
+
+  const number =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(value)
+      )
+    );
+
+  percent.textContent =
+    `${number}%`;
+
+  barFill.style.width =
+    `${number}%`;
+
+  if (message) {
+    status.textContent =
+      message;
+  }
+}
+
+
+// ============================================================
+// DOWNLOAD PROGRESS
+// ============================================================
+
+function setDownloadProgress(
+  value,
+  message
+) {
+
+  const number =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(value)
+      )
+    );
+
+  downloadPercent.textContent =
+    `${number}%`;
+
+  downloadBarFill.style.width =
+    `${number}%`;
+
+  if (message) {
+    downloadStatus.textContent =
+      message;
+  }
+}
+
+
+// ============================================================
+// RESET OUTPUT
+// ============================================================
 
 function resetOutput() {
 
@@ -261,102 +373,88 @@ function resetOutput() {
 }
 
 
-// ==================================================
+// ============================================================
 // PREMIUM CHECK
-// ==================================================
+// ============================================================
 
-function hasActivePremium(
-  profile
-) {
+function premiumIsActive() {
 
-  if (!profile) {
+  if (!currentProfile) {
     return false;
   }
 
-  if (
-    profile.is_premium !== true
-  ) {
-    return false;
-  }
-
-  if (!profile.premium_until) {
+  if (!currentProfile.premium_until) {
     return false;
   }
 
   return (
     new Date(
-      profile.premium_until
+      currentProfile.premium_until
     ).getTime() > Date.now()
   );
 }
 
 
-function getPremiumText(
-  profile
-) {
+// ============================================================
+// UPDATE PATCH BUTTON
+// ============================================================
 
-  if (!profile) {
-    return "🔒 Premium: Not active";
-  }
+function updatePatchButton() {
 
-  const until =
-    profile.premium_until
-      ? new Date(
-          profile.premium_until
-        )
-      : null;
+  if (!currentUser) {
 
+    processBtn.disabled = true;
 
-  if (
-    profile.is_premium === true &&
-    until &&
-    until.getTime() > Date.now()
-  ) {
+    processText.textContent =
+      "LOGIN TO PATCH";
 
-    const plan =
-      profile.plan || "Free";
-
-    return (
-      `🔓 ${plan} • ` +
-      `until ${until.toLocaleDateString()}`
-    );
+    return;
   }
 
 
-  return "🔒 Premium expired";
+  if (!premiumIsActive()) {
+
+    processBtn.disabled = true;
+
+    processText.textContent =
+      "PREMIUM REQUIRED";
+
+    return;
+  }
+
+
+  if (!selectedFile) {
+
+    processBtn.disabled = true;
+
+    processText.textContent =
+      "SELECT VIDEO";
+
+    return;
+  }
+
+
+  processBtn.disabled = false;
+
+  processText.textContent =
+    "PATCH VIDEO";
 }
 
 
-// ==================================================
+// ============================================================
 // LOAD PROFILE
-// ==================================================
+// ============================================================
 
-async function loadProfile(
-  user
-) {
-
-  if (!user) {
-
-    currentProfile = null;
-
-    return null;
-  }
-
+async function loadProfile(userId) {
 
   const {
     data,
     error
-  } =
-    await supabase
-      .from("profiles")
-      .select(
-        "id,email,plan,is_premium,premium_until"
-      )
-      .eq(
-        "id",
-        user.id
-      )
-      .maybeSingle();
+  } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
 
 
   if (error) {
@@ -370,62 +468,54 @@ async function loadProfile(
   }
 
 
-  currentProfile = data;
-
-  return data;
-}
+  currentProfile =
+    data || null;
 
 
-// ==================================================
-// UPDATE AUTH UI
-// ==================================================
-
-function updateAuthUI() {
-
-  if (currentUser) {
-
-    loginBox.classList.add(
-      "hidden"
-    );
-
-    accountBox.classList.remove(
-      "hidden"
-    );
-
-
-    accountEmail.textContent =
-      currentUser.email ||
-      "Unknown email";
-
+  if (!data) {
 
     premiumStatus.textContent =
-      getPremiumText(
-        currentProfile
+      "🆓 Free plan";
+
+    updatePatchButton();
+
+    return;
+  }
+
+
+  if (premiumIsActive()) {
+
+    const until =
+      new Date(
+        data.premium_until
       );
 
 
-    if (
-      hasActivePremium(
-        currentProfile
-      )
-    ) {
-
-      processText.textContent =
-        selectedFile
-          ? "PATCH VIDEO"
-          : "SELECT VIDEO";
-
-    } else {
-
-      processBtn.disabled =
-        true;
-
-      processText.textContent =
-        "PREMIUM REQUIRED";
-    }
-
+    premiumStatus.textContent =
+      `👑 ${data.plan || "Premium"} • until ${until.toLocaleDateString()}`;
 
   } else {
+
+    premiumStatus.textContent =
+      "🔒 Premium expired";
+  }
+
+
+  updatePatchButton();
+}
+
+
+// ============================================================
+// UPDATE USER UI
+// ============================================================
+
+async function updateUser(user) {
+
+  currentUser =
+    user || null;
+
+
+  if (!currentUser) {
 
     loginBox.classList.remove(
       "hidden"
@@ -435,30 +525,55 @@ function updateAuthUI() {
       "hidden"
     );
 
+    currentProfile = null;
 
-    processBtn.disabled =
-      true;
+    premiumStatus.textContent =
+      "Login required";
 
-    processText.textContent =
-      "LOGIN TO PATCH";
+    updatePatchButton();
+
+    return;
+  }
+
+
+  loginBox.classList.add(
+    "hidden"
+  );
+
+  accountBox.classList.remove(
+    "hidden"
+  );
+
+
+  accountEmail.textContent =
+    currentUser.email || "User";
+
+
+  try {
+
+    await loadProfile(
+      currentUser.id
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    premiumStatus.textContent =
+      "Unable to load profile";
   }
 }
 
 
-// ==================================================
+// ============================================================
 // SIGN UP
-// ==================================================
+// ============================================================
 
 signUpBtn.addEventListener(
   "click",
   async () => {
 
     clearError();
-
-    setAuthStatus(
-      "Creating account..."
-    );
-
 
     const email =
       authEmail.value.trim();
@@ -491,6 +606,11 @@ signUpBtn.addEventListener(
     loginBtn.disabled = true;
 
 
+    setAuthStatus(
+      "Creating account..."
+    );
+
+
     try {
 
       const {
@@ -510,11 +630,8 @@ signUpBtn.addEventListener(
 
       if (data.session) {
 
-        currentUser =
-          data.user;
-
-        await loadProfile(
-          currentUser
+        await updateUser(
+          data.user
         );
 
         setAuthStatus(
@@ -522,22 +639,21 @@ signUpBtn.addEventListener(
           true
         );
 
-        updateAuthUI();
-
       } else {
 
         setAuthStatus(
-          "Account created. Please login."
+          "Account created. Please login.",
+          true
         );
       }
 
 
-    } catch (err) {
+    } catch (error) {
 
-      console.error(err);
+      console.error(error);
 
       setAuthStatus(
-        err?.message ||
+        error?.message ||
         "Sign up failed."
       );
 
@@ -551,20 +667,15 @@ signUpBtn.addEventListener(
 );
 
 
-// ==================================================
+// ============================================================
 // LOGIN
-// ==================================================
+// ============================================================
 
 loginBtn.addEventListener(
   "click",
   async () => {
 
     clearError();
-
-    setAuthStatus(
-      "Logging in..."
-    );
-
 
     const email =
       authEmail.value.trim();
@@ -587,6 +698,11 @@ loginBtn.addEventListener(
     signUpBtn.disabled = true;
 
 
+    setAuthStatus(
+      "Logging in..."
+    );
+
+
     try {
 
       const {
@@ -605,12 +721,8 @@ loginBtn.addEventListener(
       }
 
 
-      currentUser =
-        data.user;
-
-
-      await loadProfile(
-        currentUser
+      await updateUser(
+        data.user
       );
 
 
@@ -620,16 +732,13 @@ loginBtn.addEventListener(
       );
 
 
-      updateAuthUI();
+    } catch (error) {
 
-
-    } catch (err) {
-
-      console.error(err);
+      console.error(error);
 
       setAuthStatus(
-        err?.message ||
-        "Invalid login credentials."
+        error?.message ||
+        "Login failed."
       );
 
     } finally {
@@ -642,360 +751,384 @@ loginBtn.addEventListener(
 );
 
 
-// ==================================================
+// ============================================================
 // LOGOUT
-// ==================================================
+// ============================================================
 
 logoutBtn.addEventListener(
   "click",
   async () => {
 
-    await supabase.auth.signOut();
+    try {
+
+      await supabase.auth.signOut();
+
+    } catch (error) {
+
+      console.error(error);
+    }
+
 
     currentUser = null;
     currentProfile = null;
 
-    removeFile();
+    selectedFile = null;
 
-    setAuthStatus("");
+    resetOutput();
 
-    updateAuthUI();
-  }
-);
-
-
-// ==================================================
-// AUTH SESSION
-// ==================================================
-
-supabase.auth.onAuthStateChange(
-  async (
-    _event,
-    session
-  ) => {
-
-    currentUser =
-      session?.user || null;
-
-
-    if (currentUser) {
-
-      try {
-
-        await loadProfile(
-          currentUser
-        );
-
-      } catch (err) {
-
-        console.error(err);
-      }
-
-    } else {
-
-      currentProfile = null;
-    }
-
-
-    updateAuthUI();
-  }
-);
-
-
-// ==================================================
-// INITIAL SESSION
-// ==================================================
-
-async function initAuth() {
-
-  const {
-    data: {
-      session
-    }
-  } =
-    await supabase.auth
-      .getSession();
-
-
-  currentUser =
-    session?.user || null;
-
-
-  if (currentUser) {
-
-    try {
-
-      await loadProfile(
-        currentUser
-      );
-
-    } catch (err) {
-
-      console.error(err);
-    }
-  }
-
-
-  updateAuthUI();
-}
-
-
-await initAuth();
-
-
-// ==================================================
-// VIDEO INFO
-// ==================================================
-
-async function readVideoInfo(
-  file
-) {
-
-  return new Promise(
-    (resolve) => {
-
-      const url =
-        URL.createObjectURL(
-          file
-        );
-
-
-      const video =
-        document.createElement(
-          "video"
-        );
-
-
-      video.preload =
-        "metadata";
-
-
-      video.onloadedmetadata =
-        () => {
-
-          resolve({
-
-            width:
-              video.videoWidth,
-
-            height:
-              video.videoHeight,
-
-            duration:
-              video.duration
-
-          });
-
-
-          URL.revokeObjectURL(
-            url
-          );
-        };
-
-
-      video.onerror =
-        () => {
-
-          resolve({
-
-            width: 0,
-
-            height: 0,
-
-            duration: 0
-
-          });
-
-
-          URL.revokeObjectURL(
-            url
-          );
-        };
-
-
-      video.src = url;
-    }
-  );
-}
-
-
-// ==================================================
-// SELECT FILE
-// ==================================================
-
-function selectFile(
-  file
-) {
-
-  if (!file) return;
-
-
-  if (!currentUser) {
-
-    showError(
-      "Please login first."
+    filePanel.classList.add(
+      "hidden"
     );
 
-    return;
-  }
-
-
-  if (
-    !hasActivePremium(
-      currentProfile
-    )
-  ) {
-
-    showError(
-      "Premium access is required."
-    );
-
-    return;
-  }
-
-
-  const lower =
-    file.name.toLowerCase();
-
-
-  if (
-    !lower.endsWith(".mp4") &&
-    !lower.endsWith(".mov")
-  ) {
-
-    showError(
-      "Please select an MP4 or MOV video."
-    );
-
-    return;
-  }
-
-
-  selectedFile =
-    file;
-
-
-  resetOutput();
-  clearError();
-
-
-  if (preview.src) {
-
-    URL.revokeObjectURL(
-      preview.src
-    );
-  }
-
-
-  preview.src =
-    URL.createObjectURL(
-      file
-    );
-
-
-  fileName.textContent =
-    file.name;
-
-
-  fileSize.textContent =
-    formatBytes(
-      file.size
-    );
-
-
-  readVideoInfo(file)
-    .then(
-      (info) => {
-
-        const dimensions =
-          info.width &&
-          info.height
-
-            ? `${info.width}×${info.height}`
-
-            : "Video";
-
-
-        const duration =
-          info.duration
-
-            ? `${info.duration.toFixed(1)}s`
-
-            : "—";
-
-
-        fileStats.textContent =
-          `${dimensions} • ${duration}`;
-      }
-    );
-
-
-  filePanel.classList.remove(
-    "hidden"
-  );
-
-
-  processBtn.disabled =
-    false;
-
-
-  processText.textContent =
-    "PATCH VIDEO";
-}
-
-
-// ==================================================
-// REMOVE FILE
-// ==================================================
-
-function removeFile() {
-
-  selectedFile = null;
-
-  resetOutput();
-
-  filePanel.classList.add(
-    "hidden"
-  );
-
-  fileInput.value = "";
-
-
-  if (preview.src) {
-
-    URL.revokeObjectURL(
-      preview.src
-    );
+    fileInput.value = "";
 
     preview.removeAttribute(
       "src"
     );
 
     preview.load();
+
+    updateUser(null);
+
+  }
+);
+
+
+// ============================================================
+// SESSION
+// ============================================================
+
+supabase.auth.onAuthStateChange(
+  (_event, session) => {
+
+    setTimeout(
+      () => {
+        updateUser(
+          session?.user || null
+        );
+      },
+      0
+    );
+
+  }
+);
+
+
+// ============================================================
+// INITIAL AUTH
+// ============================================================
+
+async function initAuth() {
+
+  const {
+    data,
+    error
+  } =
+    await supabase.auth.getSession();
+
+
+  if (error) {
+
+    console.error(error);
+
+    return;
   }
 
 
-  processBtn.disabled =
-    true;
-
-
-  processText.textContent =
-    currentUser &&
-    hasActivePremium(
-      currentProfile
-    )
-      ? "SELECT VIDEO"
-      : "LOGIN TO PATCH";
+  await updateUser(
+    data.session?.user || null
+  );
 }
 
 
-// ==================================================
-// PICK VIDEO
-// ==================================================
+await initAuth();
+
+
+// ============================================================
+// PLAN CLICK
+// ============================================================
+
+plans.forEach(
+  (planElement) => {
+
+    planElement.addEventListener(
+      "click",
+      () => {
+
+        const planId =
+          planElement.dataset.plan;
+
+
+        // FREE
+        if (planId === "free") {
+
+          alert(
+            "🆓 Free plan gives 2 Days access."
+          );
+
+          return;
+        }
+
+
+        // LOGIN REQUIRED
+        if (!currentUser) {
+
+          alert(
+            "Please LOGIN first."
+          );
+
+          authEmail.focus();
+
+          return;
+        }
+
+
+        const plan =
+          PLANS[planId];
+
+
+        if (!plan) {
+
+          showError(
+            "Invalid payment plan."
+          );
+
+          return;
+        }
+
+
+        selectedPlanId =
+          planId;
+
+
+        selectedPlanName.textContent =
+          plan.name;
+
+
+        selectedPlanAmount.textContent =
+          `$${plan.amount.toFixed(2)} USD`;
+
+
+        paymentOverlay.classList.remove(
+          "hidden"
+        );
+
+      }
+    );
+
+  }
+);
+
+
+// ============================================================
+// CANCEL PAYMENT
+// ============================================================
+
+cancelPaymentBtn.addEventListener(
+  "click",
+  () => {
+
+    selectedPlanId = null;
+
+    paymentOverlay.classList.add(
+      "hidden"
+    );
+
+  }
+);
+
+
+// ============================================================
+// CONFIRM PAYMENT
+// ============================================================
+
+confirmPaymentBtn.addEventListener(
+  "click",
+  async () => {
+
+    if (!currentUser) {
+
+      alert(
+        "Please login first."
+      );
+
+      paymentOverlay.classList.add(
+        "hidden"
+      );
+
+      return;
+    }
+
+
+    if (!selectedPlanId) {
+
+      showError(
+        "No payment plan selected."
+      );
+
+      return;
+    }
+
+
+    const plan =
+      PLANS[selectedPlanId];
+
+
+    if (!plan) {
+
+      showError(
+        "Invalid payment plan."
+      );
+
+      return;
+    }
+
+
+    confirmPaymentBtn.disabled =
+      true;
+
+    cancelPaymentBtn.disabled =
+      true;
+
+
+    confirmPaymentBtn.textContent =
+      "OPENING PAYWAY...";
+
+
+    try {
+
+      /*
+       * IMPORTANT:
+       *
+       * We send ONLY plan_id.
+       *
+       * We DO NOT send amount.
+       *
+       * The Edge Function must decide:
+       *
+       * week        = $2
+       * month       = $5
+       * three_month = $9
+       * six_month   = $19
+       * year        = $29
+       *
+       * This prevents users from changing
+       * $2 into $1 from browser DevTools.
+       */
+
+
+      const {
+        data: {
+          session
+        }
+      } =
+        await supabase.auth.getSession();
+
+
+      if (!session) {
+
+        throw new Error(
+          "Your login session expired. Please login again."
+        );
+      }
+
+
+      const response =
+        await fetch(
+          `${SUPABASE_URL}/functions/v1/create-payment`,
+          {
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Authorization":
+                `Bearer ${session.access_token}`
+
+            },
+
+            body: JSON.stringify({
+
+              plan_id:
+                selectedPlanId
+
+            })
+          }
+        );
+
+
+      const data =
+        await response.json()
+          .catch(
+            () => ({})
+          );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Unable to create payment."
+        );
+      }
+
+
+      if (!data.checkout_url) {
+
+        throw new Error(
+          "Payment checkout URL was not returned."
+        );
+      }
+
+
+      /*
+       * Go to ABA PayWay
+       */
+
+      window.location.href =
+        data.checkout_url;
+
+
+    } catch (error) {
+
+      console.error(
+        "Payment error:",
+        error
+      );
+
+
+      showError(
+        error?.message ||
+        "Unable to start payment."
+      );
+
+
+      confirmPaymentBtn.disabled =
+        false;
+
+      cancelPaymentBtn.disabled =
+        false;
+
+      confirmPaymentBtn.textContent =
+        "PAY NOW";
+    }
+
+  }
+);
+
+
+// ============================================================
+// SELECT VIDEO
+// ============================================================
 
 pickBtn.addEventListener(
   "click",
   () => {
+
+    clearError();
+
 
     if (!currentUser) {
 
@@ -1007,11 +1140,7 @@ pickBtn.addEventListener(
     }
 
 
-    if (
-      !hasActivePremium(
-        currentProfile
-      )
-    ) {
+    if (!premiumIsActive()) {
 
       showError(
         "Premium access is required."
@@ -1022,450 +1151,97 @@ pickBtn.addEventListener(
 
 
     fileInput.click();
+
   }
 );
 
+
+// ============================================================
+// FILE SELECTED
+// ============================================================
 
 fileInput.addEventListener(
   "change",
-  () => {
-
-    if (
-      fileInput.files?.[0]
-    ) {
-
-      selectFile(
-        fileInput.files[0]
-      );
-    }
-  }
-);
-
-
-removeBtn.addEventListener(
-  "click",
-  removeFile
-);
-
-
-// ==================================================
-// PATCH VIDEO
-// ==================================================
-
-processBtn.addEventListener(
-  "click",
   async () => {
 
-    if (!selectedFile) {
-      return;
-    }
+    const file =
+      fileInput.files?.[0];
 
 
-    if (!currentUser) {
-
-      showError(
-        "Please login first."
-      );
-
-      return;
-    }
-
-
-    if (
-      !hasActivePremium(
-        currentProfile
-      )
-    ) {
-
-      showError(
-        "Premium access is required."
-      );
-
+    if (!file) {
       return;
     }
 
 
     clearError();
+
+
+    const name =
+      file.name.toLowerCase();
+
+
+    if (
+      !name.endsWith(".mp4") &&
+      !name.endsWith(".mov")
+    ) {
+
+      showError(
+        "Please select an MP4 or MOV video."
+      );
+
+      fileInput.value = "";
+
+      return;
+    }
+
+
+    selectedFile =
+      file;
+
+
     resetOutput();
 
 
-    processBtn.disabled = true;
+    fileName.textContent =
+      file.name;
 
-    spinner.classList.remove(
-      "hidden"
-    );
 
-    progressBox.classList.remove(
-      "hidden"
-    );
+    fileSize.textContent =
+      formatBytes(file.size);
 
 
-    setProgress(
-      2,
-      "Reading video…"
-    );
-
-
-    try {
-
-      await new Promise(
-        (resolve) =>
-          setTimeout(
-            resolve,
-            30
-          )
-      );
-
-
-      const source =
-        await selectedFile
-          .arrayBuffer();
-
-
-      setProgress(
-        18,
-        "Normalizing MP4 container…"
-      );
-
-
-      const inputBytes =
-        new Uint8Array(
-          source
-        );
-
-
-      const inputView =
-        new DataView(
-          source
-        );
-
-
-      const normalized =
-        normalizeContainer(
-          inputBytes,
-          inputView
-        );
-
-
-      if (!normalized.valid) {
-
-        throw new Error(
-          "Invalid MP4/MOV container: moov box was not found."
-        );
-      }
-
-
-      setProgress(
-        42,
-        "Applying 10× sample-table inflation…"
-      );
-
-
-      const inflated =
-        inflateSampleTableVideo(
-          normalized.newBytes,
-          normalized.newView,
-          10
-        );
-
-
-      setProgress(
-        88,
-        "Building download file…"
-      );
-
-
-      const finalBuffer =
-        inflated.newBuffer;
-
-
-      outputBlob =
-        new Blob(
-          [finalBuffer],
-          {
-            type: "video/mp4"
-          }
-        );
-
-
-      const base =
-        selectedFile.name.replace(
-          /\.(mp4|mov)$/i,
-          ""
-        );
-
-
-      outputName =
-        `${base}_TL-NoBlur.mp4`;
-
-
-      setProgress(
-        100,
-        "Complete"
-      );
-
-
-      resultMeta.textContent =
-        `${formatBytes(outputBlob.size)} • original video stream not re-encoded`;
-
-
-      result.classList.remove(
-        "hidden"
-      );
-
-
-    } catch (err) {
-
-      console.error(err);
-
-
-      showError(
-        `Patch failed: ${
-          err?.message ||
-          String(err)
-        }`
-      );
-
-
-      setProgress(
-        0,
-        "Failed"
-      );
-
-
-    } finally {
-
-      spinner.classList.add(
-        "hidden"
-      );
-
-
-      processBtn.disabled =
-        !selectedFile;
-
-
-      processText.textContent =
-        outputBlob
-          ? "PATCH AGAIN"
-          : "PATCH VIDEO";
-    }
-  }
-);
-
-
-// ==================================================
-// DOWNLOAD WITH PROGRESS
-// ==================================================
-
-async function downloadWithProgress(
-  blob,
-  filename
-) {
-
-  downloadProgress.classList.remove(
-    "hidden"
-  );
-
-
-  downloadDone.textContent =
-    "Preparing download...";
-
-
-  setDownloadProgress(
-    0,
-    "Preparing..."
-  );
-
-
-  /*
-   * Split the Blob into chunks.
-   * This lets us update the UI while
-   * creating the download file.
-   */
-
-  const total =
-    blob.size;
-
-
-  const chunkSize =
-    1024 * 1024 * 2;
-
-
-  const chunks = [];
-
-
-  let loaded = 0;
-
-
-  while (
-    loaded < total
-  ) {
-
-    const end =
-      Math.min(
-        loaded + chunkSize,
-        total
-      );
-
-
-    const chunk =
-      blob.slice(
-        loaded,
-        end,
-        "video/mp4"
-      );
-
-
-    chunks.push(chunk);
-
-
-    loaded = end;
-
-
-    const progress =
-      total > 0
-        ? (loaded / total) * 100
-        : 100;
-
-
-    setDownloadProgress(
-      progress,
-      "Preparing download..."
-    );
-
-
-    await new Promise(
-      (resolve) =>
-        setTimeout(
-          resolve,
-          10
-        )
-    );
-  }
-
-
-  setDownloadProgress(
-    100,
-    "Download ready"
-  );
-
-
-  downloadDone.textContent =
-    "Saving video...";
-
-
-  const finalBlob =
-    new Blob(
-      chunks,
-      {
-        type: "video/mp4"
-      }
-    );
-
-
-  const url =
-    URL.createObjectURL(
-      finalBlob
-    );
-
-
-  const a =
-    document.createElement(
-      "a"
-    );
-
-
-  a.href =
-    url;
-
-  a.download =
-    filename;
-
-
-  document.body.appendChild(
-    a
-  );
-
-
-  a.click();
-
-
-  a.remove();
-
-
-  setTimeout(
-    () => {
+    if (preview.src) {
 
       URL.revokeObjectURL(
-        url
+        preview.src
       );
-
-    },
-    5000
-  );
-
-
-  setDownloadProgress(
-    100,
-    "Saved ✓"
-  );
-
-
-  downloadDone.textContent =
-    "Video saved successfully.";
-}
-
-
-// ==================================================
-// DOWNLOAD BUTTON
-// ==================================================
-
-downloadBtn.addEventListener(
-  "click",
-  async () => {
-
-    if (!outputBlob) {
-      return;
     }
 
 
-    clearError();
+    preview.src =
+      URL.createObjectURL(file);
 
 
-    downloadBtn.disabled =
-      true;
+    filePanel.classList.remove(
+      "hidden"
+    );
 
 
-    try {
+    preview.onloadedmetadata =
+      () => {
 
-      await downloadWithProgress(
-        outputBlob,
-        outputName
-      );
+        fileStats.textContent =
+          `${preview.videoWidth}×${preview.videoHeight} • ${formatDuration(preview.duration)}`;
 
-
-    } catch (err) {
-
-      console.error(
-        "Download error:",
-        err
-      );
+      };
 
 
-      showError(
-        "Could not save the video. Please try again."
-      );
+    updatePatchButton();
 
-
-      downloadProgress.classList.add(
-        "hidden"
-      );
-
-
-    } finally {
-
-      downloadBtn.disabled =
-        false;
-    }
   }
 );
+
+
+// ============================================================
+// REMOVE FILE
+// =================================================
