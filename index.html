@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-
   <meta
     name="viewport"
     content="width=device-width,initial-scale=1,viewport-fit=cover"
@@ -14,16 +13,20 @@
 
   <meta
     name="description"
-    content="TL NoBlur — client-side MP4/MOV patcher."
+    content="TL NoBlur — client-side MP4/MOV patcher. Video stays on your device."
   >
 
   <link rel="stylesheet" href="./style.css">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    /* =========================
-       AUTH
-    ========================= */
+    body {
+      background: #090909;
+      color: #fff;
+    }
 
     .auth-card {
       margin: 18px 0;
@@ -41,14 +44,14 @@
 
     .auth-card input {
       width: 100%;
-      box-sizing: border-box;
       margin: 6px 0;
-      padding: 13px;
-      border-radius: 10px;
+      padding: 14px;
+      border-radius: 11px;
       border: 1px solid #333;
       background: #090909;
-      color: white;
+      color: #fff;
       outline: none;
+      font-size: 15px;
     }
 
     .auth-card input:focus {
@@ -63,26 +66,21 @@
 
     .auth-actions button {
       flex: 1;
-      padding: 12px;
+      padding: 13px;
       border: 0;
-      border-radius: 10px;
+      border-radius: 11px;
       cursor: pointer;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     #signUpBtn {
-      background: #2a2a2a;
-      color: white;
+      background: #292929;
+      color: #fff;
     }
 
     #loginBtn {
-      background: white;
-      color: black;
-    }
-
-    .auth-actions button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
+      background: #fff;
+      color: #000;
     }
 
     .auth-status {
@@ -91,119 +89,165 @@
       line-height: 1.5;
     }
 
-    /* =========================
-       ACCOUNT
-    ========================= */
-
     .account-info {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .account-email {
-      font-size: 13px;
+      font-size: 14px;
       color: #aaa;
       word-break: break-all;
     }
 
     .premium-status {
-      font-weight: 700;
-      margin-top: 6px;
+      margin-top: 7px;
+      font-size: 15px;
+      font-weight: 800;
     }
 
     .logout-btn {
-      padding: 9px 13px;
+      padding: 10px 15px;
       border: 1px solid #444;
-      border-radius: 9px;
+      border-radius: 10px;
       background: #191919;
-      color: white;
+      color: #fff;
       cursor: pointer;
       font-weight: 700;
     }
 
-    /* =========================
-       PRICING
-    ========================= */
+    .hidden {
+      display: none !important;
+    }
 
-    .pricing-card {
+    /* PLANS */
+
+    .plans {
       margin: 18px 0;
       padding: 18px;
-      border: 1px solid #2a2a2a;
+      border: 1px solid #292929;
       border-radius: 16px;
       background: #111;
     }
 
-    .pricing-title {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-      color: #aaa;
+    .plans-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 13px;
     }
 
     .plan {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
       padding: 13px 0;
-      border-bottom: 1px solid #222;
+      border-bottom: 1px solid #252525;
     }
 
     .plan:last-child {
       border-bottom: 0;
     }
 
-    .plan span {
+    .plan-name {
+      font-weight: 700;
+    }
+
+    .plan-time {
+      color: #999;
+      font-size: 13px;
+      margin-top: 3px;
+    }
+
+    .plan-price {
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .free {
+      color: #fff;
+    }
+
+    /* DOWNLOAD PROGRESS */
+
+    .download-progress {
+      margin-top: 18px;
+      padding: 15px;
+      border: 1px solid #292929;
+      border-radius: 14px;
+      background: #111;
+    }
+
+    .download-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .download-percent {
       font-size: 15px;
     }
 
-    .plan strong {
-      font-size: 14px;
+    .download-track {
+      width: 100%;
+      height: 9px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #292929;
+    }
+
+    .download-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 99px;
+      background: #fff;
+      transition: width .15s linear;
+    }
+
+    .download-done {
+      margin-top: 9px;
       color: #aaa;
+      font-size: 13px;
     }
 
-    /* =========================
-       GENERAL
-    ========================= */
-
-    .hidden {
-      display: none !important;
+    .locked {
+      opacity: .55;
+      pointer-events: none;
     }
 
+    @media (max-width: 480px) {
+      .auth-actions {
+        gap: 7px;
+      }
+
+      .plan {
+        padding: 12px 0;
+      }
+    }
   </style>
 </head>
-
 
 <body>
 
 <main class="app">
 
-
-  <!-- =========================
-       HEADER
-  ========================= -->
-
+  <!-- HEADER -->
   <header class="topbar">
 
     <div class="brand">
 
-      <div class="logo">
-        TL
-      </div>
+      <div class="logo">TL</div>
 
       <div>
-
-        <div class="brand-name">
-          TL NoBlur
-        </div>
-
+        <div class="brand-name">TL NoBlur</div>
         <div class="brand-sub">
           Video Quality Patcher
         </div>
-
       </div>
 
     </div>
@@ -215,10 +259,7 @@
   </header>
 
 
-  <!-- =========================
-       ACCOUNT
-  ========================= -->
-
+  <!-- ACCOUNT -->
   <section class="auth-card">
 
     <!-- LOGIN -->
@@ -268,7 +309,7 @@
     </div>
 
 
-    <!-- LOGGED IN -->
+    <!-- ACCOUNT LOGGED IN -->
     <div
       id="accountBox"
       class="hidden"
@@ -309,83 +350,111 @@
   </section>
 
 
-  <!-- =========================
-       PRICING
-  ========================= -->
+  <!-- PLANS -->
+  <section class="plans">
 
-  <section class="pricing-card">
-
-    <div class="pricing-title">
-      PREMIUM PLANS
+    <div class="plans-title">
+      TL NoBlur Premium
     </div>
 
     <div class="plan">
 
-      <span>
-        🆓 <b>FREE</b>
-      </span>
+      <div>
+        <div class="plan-name">
+          Free
+        </div>
 
-      <strong>
-        3 DAYS
-      </strong>
+        <div class="plan-time">
+          3 Days
+        </div>
+      </div>
 
-    </div>
-
-    <div class="plan">
-
-      <span>
-        ⭐ <b>$2</b>
-      </span>
-
-      <strong>
-        1 WEEK
-      </strong>
+      <div class="plan-price free">
+        FREE
+      </div>
 
     </div>
 
+
     <div class="plan">
 
-      <span>
-        🔥 <b>$5</b>
-      </span>
+      <div>
+        <div class="plan-name">
+          ⭐ 1 Week
+        </div>
 
-      <strong>
-        1 MONTH
-      </strong>
+        <div class="plan-time">
+          Premium access
+        </div>
+      </div>
+
+      <div class="plan-price">
+        $2
+      </div>
 
     </div>
 
+
     <div class="plan">
 
-      <span>
-        💎 <b>$15</b>
-      </span>
+      <div>
+        <div class="plan-name">
+          🔥 1 Month
+        </div>
 
-      <strong>
-        6 MONTHS
-      </strong>
+        <div class="plan-time">
+          Premium access
+        </div>
+      </div>
+
+      <div class="plan-price">
+        $5
+      </div>
 
     </div>
 
+
     <div class="plan">
 
-      <span>
-        👑 <b>$25</b>
-      </span>
+      <div>
+        <div class="plan-name">
+          💎 6 Months
+        </div>
 
-      <strong>
-        1 YEAR
-      </strong>
+        <div class="plan-time">
+          Premium access
+        </div>
+      </div>
+
+      <div class="plan-price">
+        $15
+      </div>
+
+    </div>
+
+
+    <div class="plan">
+
+      <div>
+        <div class="plan-name">
+          👑 1 Year
+        </div>
+
+        <div class="plan-time">
+          Premium access
+        </div>
+      </div>
+
+      <div class="plan-price">
+        $25
+      </div>
 
     </div>
 
   </section>
 
 
-  <!-- =========================
-       HERO
-  ========================= -->
-
+  <!-- HERO -->
   <section class="hero">
 
     <p class="eyebrow">
@@ -394,7 +463,9 @@
 
     <h1>
       Patch your video.<br>
-      <span>Keep the original stream.</span>
+      <span>
+        Keep the original stream.
+      </span>
     </h1>
 
     <p class="desc">
@@ -405,10 +476,7 @@
   </section>
 
 
-  <!-- =========================
-       VIDEO CARD
-  ========================= -->
-
+  <!-- VIDEO CARD -->
   <section class="card">
 
     <input
@@ -420,7 +488,6 @@
 
 
     <!-- SELECT VIDEO -->
-
     <button
       id="pickBtn"
       class="dropzone"
@@ -442,8 +509,7 @@
     </button>
 
 
-    <!-- FILE PANEL -->
-
+    <!-- FILE -->
     <div
       id="filePanel"
       class="file-panel hidden"
@@ -461,6 +527,7 @@
 
         </div>
 
+
         <div class="file-meta">
 
           <strong id="fileName">
@@ -477,6 +544,7 @@
 
         </div>
 
+
         <button
           id="removeBtn"
           class="icon-btn"
@@ -492,7 +560,6 @@
 
 
     <!-- MODE -->
-
     <div class="settings">
 
       <div class="setting-title">
@@ -522,8 +589,7 @@
     </div>
 
 
-    <!-- PATCH BUTTON -->
-
+    <!-- PATCH -->
     <button
       id="processBtn"
       class="process"
@@ -543,8 +609,7 @@
     </button>
 
 
-    <!-- PROGRESS -->
-
+    <!-- PATCH PROGRESS -->
     <div
       id="progressBox"
       class="progress-box hidden"
@@ -571,8 +636,47 @@
     </div>
 
 
-    <!-- RESULT -->
+    <!-- DOWNLOAD PROGRESS -->
+    <div
+      id="downloadProgress"
+      class="download-progress hidden"
+    >
 
+      <div class="download-head">
+
+        <span id="downloadStatus">
+          Downloading...
+        </span>
+
+        <span
+          id="downloadPercent"
+          class="download-percent"
+        >
+          0%
+        </span>
+
+      </div>
+
+      <div class="download-track">
+
+        <div
+          id="downloadBarFill"
+          class="download-fill"
+        ></div>
+
+      </div>
+
+      <div
+        id="downloadDone"
+        class="download-done"
+      >
+        Preparing download...
+      </div>
+
+    </div>
+
+
+    <!-- RESULT -->
     <div
       id="result"
       class="result hidden"
@@ -606,7 +710,6 @@
 
 
     <!-- ERROR -->
-
     <div
       id="error"
       class="error hidden"
@@ -615,10 +718,7 @@
   </section>
 
 
-  <!-- =========================
-       NOTES
-  ========================= -->
-
+  <!-- NOTES -->
   <section class="notes">
 
     <div>
@@ -633,6 +733,7 @@
 
     </div>
 
+
     <div>
 
       <b>
@@ -644,6 +745,7 @@
       </span>
 
     </div>
+
 
     <div>
 
@@ -660,10 +762,7 @@
   </section>
 
 
-  <!-- =========================
-       FOOTER
-  ========================= -->
-
+  <!-- FOOTER -->
   <footer>
     TL NoBlur • Based on the NoBlur client-side patch pipeline.
   </footer>
@@ -671,11 +770,7 @@
 </main>
 
 
-<!-- APP JS -->
-<script
-  type="module"
-  src="./app.js"
-></script>
+<script type="module" src="./app.js"></script>
 
 </body>
 </html>
