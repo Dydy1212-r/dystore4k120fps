@@ -2,59 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
 
   <meta name="theme-color" content="#090909">
+
   <title>TL NoBlur</title>
+
   <meta
     name="description"
-    content="TL NoBlur — client-side MP4/MOV patcher."
+    content="TL NoBlur — client-side MP4/MOV patcher. Video stays on your device."
   >
 
   <link rel="stylesheet" href="./style.css">
 
   <style>
-    .auth-card,
-    .premium-card {
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #090909;
+      color: #fff;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+
+    /* =========================
+       AUTH
+    ========================= */
+
+    .auth-card {
       margin: 18px 0;
       padding: 18px;
-      border: 1px solid #2a2a2a;
+      border: 1px solid #292929;
       border-radius: 18px;
       background: #111;
     }
 
-    .auth-title,
-    .premium-title {
-      font-size: 22px;
+    .auth-title {
+      margin-bottom: 15px;
+      font-size: 20px;
       font-weight: 800;
-      margin-bottom: 16px;
     }
 
     .auth-card input {
       width: 100%;
-      box-sizing: border-box;
       margin: 6px 0;
       padding: 14px;
-      border-radius: 12px;
       border: 1px solid #333;
+      border-radius: 11px;
+      outline: none;
       background: #090909;
       color: #fff;
-      outline: none;
+    }
+
+    .auth-card input:focus {
+      border-color: #777;
     }
 
     .auth-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 12px;
+      gap: 9px;
+      margin-top: 10px;
     }
 
     .auth-actions button {
       flex: 1;
       padding: 13px;
       border: 0;
-      border-radius: 12px;
-      font-weight: 800;
+      border-radius: 11px;
       cursor: pointer;
+      font-weight: 800;
     }
 
     #signUpBtn {
@@ -68,9 +99,10 @@
     }
 
     .auth-status {
+      min-height: 20px;
+      margin: 12px 0 0;
       font-size: 13px;
       line-height: 1.5;
-      margin-top: 12px;
     }
 
     .account-info {
@@ -87,51 +119,62 @@
     }
 
     .premium-status {
-      margin-top: 5px;
+      margin-top: 6px;
       font-weight: 800;
     }
 
     .logout-btn {
-      padding: 10px 15px;
+      padding: 10px 14px;
       border: 1px solid #444;
       border-radius: 10px;
       background: #191919;
       color: #fff;
-      font-weight: 700;
       cursor: pointer;
+      font-weight: 700;
+    }
+
+
+    /* =========================
+       PREMIUM PLANS
+    ========================= */
+
+    .premium-card {
+      margin: 18px 0;
+      padding: 18px;
+      border: 1px solid #292929;
+      border-radius: 18px;
+      background: #111;
+    }
+
+    .premium-title {
+      margin-bottom: 5px;
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .premium-subtitle {
+      margin-bottom: 14px;
+      color: #888;
+      font-size: 13px;
     }
 
     .plan {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 15px;
-      padding: 17px 4px;
+      gap: 12px;
+      width: 100%;
+      padding: 15px 5px;
+      border: 0;
       border-bottom: 1px solid #292929;
+      background: transparent;
+      color: #fff;
+      text-align: left;
       cursor: pointer;
     }
 
-    .plan:last-child {
+    .plan:last-of-type {
       border-bottom: 0;
-    }
-
-    .plan strong {
-      display: block;
-      font-size: 18px;
-      color: #fff;
-    }
-
-    .plan span {
-      display: block;
-      margin-top: 5px;
-      color: #999;
-      font-size: 14px;
-    }
-
-    .plan b {
-      font-size: 19px;
-      color: #fff;
-      white-space: nowrap;
     }
 
     .plan:hover {
@@ -139,53 +182,229 @@
       border-radius: 10px;
     }
 
-    .pay-note {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      background: #181818;
+    .plan-left strong {
+      display: block;
+      font-size: 17px;
+    }
+
+    .plan-left span {
+      display: block;
+      margin-top: 4px;
       color: #999;
       font-size: 13px;
     }
 
-    .hidden {
-      display: none !important;
+    .plan-price {
+      font-size: 18px;
+      font-weight: 900;
+      white-space: nowrap;
     }
 
-    .locked {
-      opacity: .55;
-      pointer-events: none;
+    .free-plan {
+      cursor: default;
     }
+
+    .free-plan:hover {
+      background: transparent;
+    }
+
+    .payment-notice {
+      margin-top: 15px;
+      padding: 13px;
+      border: 1px solid #333;
+      border-radius: 11px;
+      background: #181818;
+      color: #aaa;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .payment-notice strong {
+      color: #fff;
+    }
+
+
+    /* =========================
+       PAYMENT MODAL
+    ========================= */
+
+    .payment-overlay {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, .82);
+      backdrop-filter: blur(8px);
+    }
+
+    .payment-modal {
+      width: min(430px, 100%);
+      padding: 22px;
+      border: 1px solid #333;
+      border-radius: 18px;
+      background: #111;
+      box-shadow: 0 20px 70px rgba(0,0,0,.55);
+    }
+
+    .payment-modal h2 {
+      margin: 0 0 7px;
+      font-size: 21px;
+    }
+
+    .payment-modal p {
+      margin: 6px 0;
+      color: #999;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .selected-plan {
+      margin: 17px 0;
+      padding: 16px;
+      border-radius: 13px;
+      background: #191919;
+    }
+
+    .selected-plan-name {
+      font-weight: 800;
+    }
+
+    .selected-plan-amount {
+      margin-top: 7px;
+      font-size: 27px;
+      font-weight: 900;
+    }
+
+    .payment-buttons {
+      display: flex;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .payment-buttons button {
+      flex: 1;
+      padding: 13px;
+      border: 0;
+      border-radius: 11px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    #confirmPaymentBtn {
+      background: #fff;
+      color: #000;
+    }
+
+    #cancelPaymentBtn {
+      background: #292929;
+      color: #fff;
+    }
+
+
+    /* =========================
+       DOWNLOAD PROGRESS
+    ========================= */
+
+    .download-progress {
+      margin-top: 18px;
+      padding: 15px;
+      border: 1px solid #292929;
+      border-radius: 14px;
+      background: #111;
+    }
+
+    .download-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .download-track {
+      width: 100%;
+      height: 9px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #292929;
+    }
+
+    .download-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 99px;
+      background: #fff;
+      transition: width .15s linear;
+    }
+
+    .download-done {
+      margin-top: 9px;
+      color: #999;
+      font-size: 12px;
+    }
+
   </style>
 </head>
+
 
 <body>
 
 <main class="app">
 
-  <!-- HEADER -->
+
+  <!-- =========================================
+       HEADER
+  ========================================== -->
+
   <header class="topbar">
+
     <div class="brand">
-      <div class="logo">TL</div>
+
+      <div class="logo">
+        TL
+      </div>
 
       <div>
-        <div class="brand-name">TL NoBlur</div>
-        <div class="brand-sub">Video Quality Patcher</div>
+
+        <div class="brand-name">
+          TL NoBlur
+        </div>
+
+        <div class="brand-sub">
+          Video Quality Patcher
+        </div>
+
       </div>
+
     </div>
 
-    <span class="privacy">● 100% LOCAL</span>
+    <span class="privacy">
+      ● 100% LOCAL
+    </span>
+
   </header>
 
 
-  <!-- ACCOUNT -->
+
+  <!-- =========================================
+       LOGIN / ACCOUNT
+  ========================================== -->
+
   <section class="auth-card">
+
+
+    <!-- LOGIN -->
 
     <div id="loginBox">
 
       <div class="auth-title">
         TL NoBlur Account
       </div>
+
 
       <input
         id="authEmail"
@@ -194,6 +413,7 @@
         autocomplete="email"
       >
 
+
       <input
         id="authPassword"
         type="password"
@@ -201,44 +421,64 @@
         autocomplete="current-password"
       >
 
+
       <div class="auth-actions">
 
-        <button id="signUpBtn" type="button">
+        <button
+          id="signUpBtn"
+          type="button"
+        >
           SIGN UP
         </button>
 
-        <button id="loginBtn" type="button">
+
+        <button
+          id="loginBtn"
+          type="button"
+        >
           LOGIN
         </button>
 
       </div>
 
-      <p id="authStatus" class="auth-status"></p>
+
+      <p
+        id="authStatus"
+        class="auth-status"
+      ></p>
 
     </div>
 
 
-    <div id="accountBox" class="hidden">
+
+    <!-- LOGGED IN -->
+
+    <div
+      id="accountBox"
+      class="hidden"
+    >
 
       <div class="account-info">
 
         <div>
 
           <div
-            class="account-email"
             id="accountEmail"
+            class="account-email"
           >
             —
           </div>
 
+
           <div
-            class="premium-status"
             id="premiumStatus"
+            class="premium-status"
           >
             Checking premium...
           </div>
 
         </div>
+
 
         <button
           id="logoutBtn"
@@ -255,134 +495,245 @@
   </section>
 
 
-  <!-- PREMIUM PLANS -->
+
+  <!-- =========================================
+       PREMIUM
+  ========================================== -->
+
   <section class="premium-card">
+
 
     <div class="premium-title">
       TL NoBlur Premium
     </div>
 
 
-    <div
-      class="plan"
+    <div class="premium-subtitle">
+      Choose a plan to unlock video patching.
+    </div>
+
+
+
+    <!-- FREE -->
+
+    <button
+      class="plan free-plan"
+      type="button"
       data-plan="free"
-      data-price="0"
-      data-days="2"
     >
 
-      <div>
-        <strong>🆓 Free</strong>
-        <span>2 Days</span>
+      <div class="plan-left">
+
+        <strong>
+          🆓 Free
+        </strong>
+
+        <span>
+          2 Days
+        </span>
+
       </div>
 
-      <b>FREE</b>
 
-    </div>
+      <div class="plan-price">
+        FREE
+      </div>
+
+    </button>
 
 
-    <div
+
+    <!-- $2 -->
+
+    <button
       class="plan"
+      type="button"
       data-plan="week"
-      data-price="2"
-      data-days="7"
     >
 
-      <div>
-        <strong>⭐ 1 Week</strong>
-        <span>Premium access</span>
+      <div class="plan-left">
+
+        <strong>
+          ⭐ 1 Week
+        </strong>
+
+        <span>
+          Pay exactly $2.00 USD
+        </span>
+
       </div>
 
-      <b>$2</b>
 
-    </div>
+      <div class="plan-price">
+        $2
+      </div>
+
+    </button>
 
 
-    <div
+
+    <!-- $5 -->
+
+    <button
       class="plan"
+      type="button"
       data-plan="month"
-      data-price="5"
-      data-days="30"
     >
 
-      <div>
-        <strong>🔥 1 Month</strong>
-        <span>Premium access</span>
+      <div class="plan-left">
+
+        <strong>
+          🔥 1 Month
+        </strong>
+
+        <span>
+          Pay exactly $5.00 USD
+        </span>
+
       </div>
 
-      <b>$5</b>
 
-    </div>
+      <div class="plan-price">
+        $5
+      </div>
+
+    </button>
 
 
-    <div
+
+    <!-- $9 -->
+
+    <button
       class="plan"
-      data-plan="3month"
-      data-price="9"
-      data-days="90"
+      type="button"
+      data-plan="three_month"
     >
 
-      <div>
-        <strong>💎 3 Months</strong>
-        <span>Premium access</span>
+      <div class="plan-left">
+
+        <strong>
+          💎 3 Months
+        </strong>
+
+        <span>
+          Pay exactly $9.00 USD
+        </span>
+
       </div>
 
-      <b>$9</b>
 
-    </div>
+      <div class="plan-price">
+        $9
+      </div>
+
+    </button>
 
 
-    <div
+
+    <!-- $19 -->
+
+    <button
       class="plan"
-      data-plan="6month"
-      data-price="19"
-      data-days="180"
+      type="button"
+      data-plan="six_month"
     >
 
-      <div>
-        <strong>👑 6 Months</strong>
-        <span>Premium access</span>
+      <div class="plan-left">
+
+        <strong>
+          👑 6 Months
+        </strong>
+
+        <span>
+          Pay exactly $19.00 USD
+        </span>
+
       </div>
 
-      <b>$19</b>
 
-    </div>
+      <div class="plan-price">
+        $19
+      </div>
+
+    </button>
 
 
-    <div
+
+    <!-- $29 -->
+
+    <button
       class="plan"
+      type="button"
       data-plan="year"
-      data-price="29"
-      data-days="365"
     >
 
-      <div>
-        <strong>🏆 1 Year</strong>
-        <span>Premium access</span>
+      <div class="plan-left">
+
+        <strong>
+          🏆 1 Year
+        </strong>
+
+        <span>
+          Pay exactly $29.00 USD
+        </span>
+
       </div>
 
-      <b>$29</b>
 
-    </div>
+      <div class="plan-price">
+        $29
+      </div>
+
+    </button>
 
 
-    <div class="pay-note">
-      💳 Select a plan to continue to payment.
+
+    <!-- PAYMENT NOTICE -->
+
+    <div class="payment-notice">
+
+      <strong>
+        ⚠️ Payment Notice
+      </strong>
+
+      <br>
+
+      Please pay the exact amount shown
+      for your selected plan.
+
+      <br>
+
+      Payments below the required amount
+      will not activate Premium.
+
+      <br>
+
+      Underpayments are non-refundable.
+
     </div>
 
   </section>
 
 
-  <!-- HERO -->
+
+  <!-- =========================================
+       HERO
+  ========================================== -->
+
   <section class="hero">
 
     <p class="eyebrow">
       INFLATE / NON-INTERPOLATION
     </p>
 
+
     <h1>
       Patch your video.<br>
-      <span>Keep the original stream.</span>
+      <span>
+        Keep the original stream.
+      </span>
     </h1>
+
 
     <p class="desc">
       MP4/MOV processing happens inside your browser.
@@ -392,8 +743,13 @@
   </section>
 
 
-  <!-- VIDEO -->
+
+  <!-- =========================================
+       VIDEO CARD
+  ========================================== -->
+
   <section class="card">
+
 
     <input
       id="fileInput"
@@ -402,6 +758,8 @@
       hidden
     >
 
+
+    <!-- SELECT -->
 
     <button
       id="pickBtn"
@@ -413,9 +771,11 @@
         ↑
       </div>
 
+
       <strong>
         Select video
       </strong>
+
 
       <span>
         MP4 / MOV • Best for H.264 / H.265
@@ -424,6 +784,9 @@
     </button>
 
 
+
+    <!-- FILE -->
+
     <div
       id="filePanel"
       class="file-panel hidden"
@@ -431,13 +794,17 @@
 
       <div class="file-row">
 
+
         <div class="thumb-wrap">
+
           <video
             id="preview"
             muted
             playsinline
           ></video>
+
         </div>
+
 
         <div class="file-meta">
 
@@ -455,10 +822,12 @@
 
         </div>
 
+
         <button
           id="removeBtn"
           class="icon-btn"
           type="button"
+          aria-label="Remove video"
         >
           ×
         </button>
@@ -468,16 +837,20 @@
     </div>
 
 
+
     <!-- MODE -->
+
     <div class="settings">
 
       <div class="setting-title">
         MODE
       </div>
 
+
       <div class="mode">
 
         <div>
+
           <strong>
             Inflate
           </strong>
@@ -485,7 +858,9 @@
           <p>
             Non-interpolation • no video re-encode
           </p>
+
         </div>
+
 
         <span class="badge">
           10×
@@ -496,7 +871,9 @@
     </div>
 
 
-    <!-- PROCESS -->
+
+    <!-- PATCH BUTTON -->
+
     <button
       id="processBtn"
       class="process"
@@ -508,6 +885,7 @@
         LOGIN TO PATCH
       </span>
 
+
       <span
         id="spinner"
         class="spinner hidden"
@@ -516,7 +894,9 @@
     </button>
 
 
-    <!-- PROGRESS -->
+
+    <!-- PATCH PROGRESS -->
+
     <div
       id="progressBox"
       class="progress-box hidden"
@@ -528,20 +908,71 @@
           Preparing…
         </span>
 
+
         <span id="percent">
           0%
         </span>
 
       </div>
 
+
       <div class="bar">
-        <div id="barFill"></div>
+
+        <div
+          id="barFill"
+          style="width:0%"
+        ></div>
+
       </div>
 
     </div>
 
 
+
+    <!-- DOWNLOAD PROGRESS -->
+
+    <div
+      id="downloadProgress"
+      class="download-progress hidden"
+    >
+
+      <div class="download-head">
+
+        <span id="downloadStatus">
+          Downloading...
+        </span>
+
+
+        <span id="downloadPercent">
+          0%
+        </span>
+
+      </div>
+
+
+      <div class="download-track">
+
+        <div
+          id="downloadBarFill"
+          class="download-fill"
+        ></div>
+
+      </div>
+
+
+      <div
+        id="downloadDone"
+        class="download-done"
+      >
+        Preparing download...
+      </div>
+
+    </div>
+
+
+
     <!-- RESULT -->
+
     <div
       id="result"
       class="result hidden"
@@ -551,17 +982,20 @@
         ✓
       </div>
 
+
       <div class="result-text">
 
         <strong>
           Patch complete
         </strong>
 
+
         <span id="resultMeta">
           Ready to download
         </span>
 
       </div>
+
 
       <button
         id="downloadBtn"
@@ -574,6 +1008,9 @@
     </div>
 
 
+
+    <!-- ERROR -->
+
     <div
       id="error"
       class="error hidden"
@@ -582,32 +1019,59 @@
   </section>
 
 
-  <!-- NOTES -->
+
+  <!-- =========================================
+       NOTES
+  ========================================== -->
+
   <section class="notes">
 
+
     <div>
-      <b>PRIVATE</b>
+
+      <b>
+        PRIVATE
+      </b>
+
       <span>
         Your video stays in this browser.
       </span>
+
     </div>
 
+
     <div>
-      <b>NO RE-ENCODE</b>
+
+      <b>
+        NO RE-ENCODE
+      </b>
+
       <span>
         Inflate mode patches the MP4 container.
       </span>
+
     </div>
 
+
     <div>
-      <b>PREMIUM</b>
+
+      <b>
+        PREMIUM
+      </b>
+
       <span>
         Premium access is required to patch videos.
       </span>
+
     </div>
 
   </section>
 
+
+
+  <!-- =========================================
+       FOOTER
+  ========================================== -->
 
   <footer>
     TL NoBlur • Based on the NoBlur client-side patch pipeline.
@@ -616,7 +1080,97 @@
 </main>
 
 
-<script type="module" src="./app.js"></script>
+
+<!-- =========================================
+     PAYMENT CONFIRM MODAL
+========================================== -->
+
+<div
+  id="paymentOverlay"
+  class="payment-overlay hidden"
+>
+
+  <div class="payment-modal">
+
+    <h2>
+      Confirm Payment
+    </h2>
+
+
+    <p>
+      You are about to pay for:
+    </p>
+
+
+    <div class="selected-plan">
+
+      <div
+        id="selectedPlanName"
+        class="selected-plan-name"
+      >
+        —
+      </div>
+
+
+      <div
+        id="selectedPlanAmount"
+        class="selected-plan-amount"
+      >
+        $0.00 USD
+      </div>
+
+    </div>
+
+
+    <p>
+      Please make sure the amount is correct
+      before continuing to ABA PayWay.
+    </p>
+
+
+    <p>
+      ⚠️ Payments below the required amount
+      will not activate Premium.
+    </p>
+
+
+    <p>
+      Underpayments are non-refundable.
+    </p>
+
+
+    <div class="payment-buttons">
+
+      <button
+        id="cancelPaymentBtn"
+        type="button"
+      >
+        CANCEL
+      </button>
+
+
+      <button
+        id="confirmPaymentBtn"
+        type="button"
+      >
+        PAY NOW
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- APP -->
+
+<script
+  type="module"
+  src="./app.js"
+></script>
+
 
 </body>
 </html>
