@@ -13,10 +13,10 @@ import { createClient } from
 // ========================================
 
 const SUPABASE_URL =
-  "YOUR_SUPABASE_PROJECT_URL";
+  "https://glpkadgmsaozmcebyrxw.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "YOUR_SUPABASE_PUBLISHABLE_KEY";
+  "sb_publishable_UYD86Z2gQD5o8BMfuP5IHw__bIcUX0C";
 
 
 // ========================================
