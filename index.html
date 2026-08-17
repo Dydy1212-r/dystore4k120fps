@@ -7,9 +7,102 @@
   <title>TL NoBlur</title>
   <meta name="description" content="TL NoBlur — client-side MP4/MOV patcher. Video stays on your device.">
   <link rel="stylesheet" href="./style.css">
+
+  <style>
+    .auth-card {
+      margin: 18px 0;
+      padding: 18px;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      background: #111;
+    }
+
+    .auth-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .auth-card input {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 6px 0;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #090909;
+      color: white;
+      outline: none;
+    }
+
+    .auth-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .auth-actions button {
+      flex: 1;
+      padding: 12px;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    #signUpBtn {
+      background: #2a2a2a;
+      color: white;
+    }
+
+    #loginBtn {
+      background: #fff;
+      color: #000;
+    }
+
+    .auth-status {
+      margin: 12px 0 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .account-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .account-email {
+      font-size: 13px;
+      color: #aaa;
+      word-break: break-all;
+    }
+
+    .premium-status {
+      font-weight: 700;
+      margin-top: 5px;
+    }
+
+    .logout-btn {
+      padding: 9px 13px;
+      border: 1px solid #444;
+      border-radius: 9px;
+      background: #191919;
+      color: white;
+      cursor: pointer;
+    }
+
+    .locked {
+      opacity: .55;
+    }
+  </style>
 </head>
+
 <body>
   <main class="app">
+
     <header class="topbar">
       <div class="brand">
         <div class="logo">TL</div>
@@ -18,17 +111,78 @@
           <div class="brand-sub">Video Quality Patcher</div>
         </div>
       </div>
+
       <span class="privacy">● 100% LOCAL</span>
     </header>
 
+    <!-- LOGIN / ACCOUNT -->
+    <section class="auth-card">
+
+      <div id="loginBox">
+        <div class="auth-title">TL NoBlur Account</div>
+
+        <input
+          id="authEmail"
+          type="email"
+          placeholder="Email"
+          autocomplete="email"
+        >
+
+        <input
+          id="authPassword"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+        >
+
+        <div class="auth-actions">
+          <button id="signUpBtn" type="button">SIGN UP</button>
+          <button id="loginBtn" type="button">LOGIN</button>
+        </div>
+
+        <p id="authStatus" class="auth-status"></p>
+      </div>
+
+      <div id="accountBox" class="hidden">
+        <div class="account-info">
+          <div>
+            <div class="account-email" id="accountEmail">—</div>
+            <div class="premium-status" id="premiumStatus">
+              Checking premium...
+            </div>
+          </div>
+
+          <button id="logoutBtn" class="logout-btn" type="button">
+            LOGOUT
+          </button>
+        </div>
+      </div>
+
+    </section>
+
     <section class="hero">
       <p class="eyebrow">INFLATE / NON-INTERPOLATION</p>
-      <h1>Patch your video.<br><span>Keep the original stream.</span></h1>
-      <p class="desc">MP4/MOV processing happens inside your browser. The video file is not uploaded to a server.</p>
+
+      <h1>
+        Patch your video.<br>
+        <span>Keep the original stream.</span>
+      </h1>
+
+      <p class="desc">
+        MP4/MOV processing happens inside your browser.
+        The video file is not uploaded to a server.
+      </p>
     </section>
 
     <section class="card">
-      <input id="fileInput" type="file" accept="video/mp4,video/quicktime,.mp4,.mov" hidden>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept="video/mp4,video/quicktime,.mp4,.mov"
+        hidden
+      >
+
       <button id="pickBtn" class="dropzone" type="button">
         <div class="upload-icon">↑</div>
         <strong>Select video</strong>
@@ -36,64 +190,121 @@
       </button>
 
       <div id="filePanel" class="file-panel hidden">
+
         <div class="file-row">
-          <div class="thumb-wrap"><video id="preview" muted playsinline></video></div>
+
+          <div class="thumb-wrap">
+            <video id="preview" muted playsinline></video>
+          </div>
+
           <div class="file-meta">
             <strong id="fileName">—</strong>
             <span id="fileStats">—</span>
             <span id="fileSize">—</span>
           </div>
-          <button id="removeBtn" class="icon-btn" type="button" aria-label="Remove">×</button>
+
+          <button
+            id="removeBtn"
+            class="icon-btn"
+            type="button"
+            aria-label="Remove"
+          >
+            ×
+          </button>
+
         </div>
+
       </div>
 
       <div class="settings">
+
         <div class="setting-title">MODE</div>
+
         <div class="mode">
+
           <div>
             <strong>Inflate</strong>
             <p>Non-interpolation • no video re-encode</p>
           </div>
+
           <span class="badge">10×</span>
+
         </div>
+
       </div>
 
-      <button id="processBtn" class="process" type="button" disabled>
-        <span id="processText">PATCH VIDEO</span>
+      <button
+        id="processBtn"
+        class="process"
+        type="button"
+        disabled
+      >
+        <span id="processText">LOGIN TO PATCH</span>
         <span id="spinner" class="spinner hidden"></span>
       </button>
 
       <div id="progressBox" class="progress-box hidden">
+
         <div class="progress-head">
           <span id="status">Preparing…</span>
           <span id="percent">0%</span>
         </div>
-        <div class="bar"><div id="barFill"></div></div>
+
+        <div class="bar">
+          <div id="barFill"></div>
+        </div>
+
       </div>
 
       <div id="result" class="result hidden">
+
         <div class="result-icon">✓</div>
+
         <div class="result-text">
           <strong>Patch complete</strong>
           <span id="resultMeta">Ready to download</span>
         </div>
-        <button id="downloadBtn" class="download" type="button">DOWNLOAD</button>
+
+        <button
+          id="downloadBtn"
+          class="download"
+          type="button"
+        >
+          DOWNLOAD
+        </button>
+
       </div>
 
       <div id="error" class="error hidden"></div>
+
     </section>
 
     <section class="notes">
-      <div><b>PRIVATE</b><span>Your video stays in this browser.</span></div>
-      <div><b>NO RE-ENCODE</b><span>Inflate mode patches the MP4 container.</span></div>
-      <div><b>BACKUP</b><span>Keep your original file before processing.</span></div>
+
+      <div>
+        <b>PRIVATE</b>
+        <span>Your video stays in this browser.</span>
+      </div>
+
+      <div>
+        <b>NO RE-ENCODE</b>
+        <span>Inflate mode patches the MP4 container.</span>
+      </div>
+
+      <div>
+        <b>PREMIUM</b>
+        <span>Premium access is required to patch videos.</span>
+      </div>
+
     </section>
 
     <footer>
       TL NoBlur • Based on the NoBlur client-side patch pipeline.
     </footer>
+
   </main>
 
   <script type="module" src="./app.js"></script>
+
 </body>
 </html>
