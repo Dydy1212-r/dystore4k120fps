@@ -1,704 +1,714 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-
+  <meta charset="UTF-8" />
   <meta
     name="viewport"
-    content="width=device-width,initial-scale=1,viewport-fit=cover"
-  >
-
-  <meta name="theme-color" content="#090909">
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  />
 
   <title>TL NoBlur</title>
-
-  <meta
-    name="description"
-    content="TL NoBlur — client-side MP4/MOV video patcher."
-  >
-
-  <link rel="stylesheet" href="./style.css">
 
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      margin: 0;
-      background: #090909;
+      background: #080808;
       color: #fff;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      overflow-x: hidden;
     }
 
     button,
     input {
-      font: inherit;
+      font-family: inherit;
     }
 
-    button {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .app {
+    .page {
       width: 100%;
-      max-width: 760px;
-      margin: auto;
-      padding: 20px 15px 45px;
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(255, 255, 255, 0.035),
+          transparent 35%
+        ),
+        #080808;
     }
 
-    /* ================= HEADER ================= */
+    /* =========================
+       HEADER
+    ========================= */
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 20px;
+    .top {
+      width: 100%;
+      padding: 32px 30px 24px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 22px;
     }
 
     .logo {
-      width: 55px;
-      height: 55px;
+      width: 108px;
+      height: 108px;
+      border-radius: 28px;
+
+      background: #fff;
+      color: #050505;
+
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 16px;
-      background: #fff;
-      color: #000;
-      font-size: 24px;
+
+      font-size: 48px;
       font-weight: 900;
+      letter-spacing: -4px;
+
+      flex-shrink: 0;
     }
 
-    .brand-name {
-      font-size: 23px;
+    .brand-title {
+      font-size: 46px;
+      line-height: 1;
       font-weight: 900;
+      letter-spacing: -2px;
     }
 
-    .brand-sub {
-      margin-top: 4px;
-      color: #777;
-      font-size: 13px;
+    .brand-subtitle {
+      margin-top: 12px;
+      font-size: 25px;
+      color: #666;
     }
 
-    .privacy {
-      color: #777;
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
+    /* =========================
+       MAIN
+    ========================= */
+
+    .container {
+      width: calc(100% - 60px);
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    /* ================= AUTH ================= */
+    /* =========================
+       CARD
+    ========================= */
 
-    .auth-card {
-      margin-bottom: 18px;
-      padding: 18px;
-      border: 1px solid #292929;
-      border-radius: 18px;
-      background: #111;
-    }
-
-    .auth-title {
-      margin-bottom: 14px;
-      font-size: 20px;
-      font-weight: 900;
-    }
-
-    .auth-card input {
+    .card {
       width: 100%;
-      margin: 5px 0;
-      padding: 14px;
-      border: 1px solid #333;
-      border-radius: 11px;
+
+      border: 2px solid #242424;
+      border-radius: 34px;
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,0.018),
+          rgba(255,255,255,0)
+        ),
+        #101010;
+
+      padding: 38px;
+      margin-bottom: 36px;
+    }
+
+    .card-title {
+      font-size: 39px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      margin-bottom: 8px;
+    }
+
+    .card-subtitle {
+      color: #6d6d6d;
+      font-size: 25px;
+      margin-bottom: 32px;
+    }
+
+    /* =========================
+       ACCOUNT
+    ========================= */
+
+    .input {
+      width: 100%;
+      height: 92px;
+
+      border-radius: 25px;
+      border: 2px solid #292929;
+
+      background: #070707;
+      color: #fff;
+
+      padding: 0 28px;
+
+      font-size: 27px;
       outline: none;
-      background: #090909;
-      color: #fff;
-    }
 
-    .auth-card input:focus {
-      border-color: #777;
-    }
-
-    .auth-actions {
-      display: flex;
-      gap: 9px;
-      margin-top: 10px;
-    }
-
-    .auth-actions button {
-      flex: 1;
-      min-height: 50px;
-      padding: 13px;
-      border: 0;
-      border-radius: 11px;
-      cursor: pointer;
-      font-weight: 900;
-    }
-
-    #signUpBtn {
-      background: #292929;
-      color: #fff;
-    }
-
-    #loginBtn {
-      background: #fff;
-      color: #000;
-    }
-
-    .auth-actions button:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-
-    .auth-status {
-      min-height: 20px;
-      margin: 10px 0 0;
-      color: #999;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .account-info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .account-email {
-      color: #aaa;
-      font-size: 13px;
-      word-break: break-all;
-    }
-
-    .premium-status {
-      margin-top: 6px;
-      font-weight: 900;
-    }
-
-    .logout-btn {
-      padding: 10px 14px;
-      border: 1px solid #444;
-      border-radius: 10px;
-      background: #191919;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    /* ================= PLANS ================= */
-
-    .premium-card {
       margin-bottom: 20px;
-      padding: 18px;
-      border: 1px solid #292929;
-      border-radius: 18px;
-      background: #111;
     }
 
-    .premium-title {
-      font-size: 21px;
+    .input::placeholder {
+      color: #666;
+    }
+
+    .input:focus {
+      border-color: #555;
+    }
+
+    .btn {
+      width: 100%;
+      height: 92px;
+
+      border: none;
+      border-radius: 25px;
+
+      font-size: 28px;
       font-weight: 900;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        background 0.15s ease;
     }
 
-    .premium-sub {
-      margin: 5px 0 12px;
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-signup {
+      background: #2b2b2b;
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .btn-signup:hover {
+      background: #383838;
+    }
+
+    .btn-login {
+      background: #fff;
+      color: #080808;
+      margin-top: 20px;
+    }
+
+    .btn-login:hover {
+      background: #e8e8e8;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    #authStatus {
+      margin-top: 18px;
+      font-size: 17px;
       color: #777;
-      font-size: 13px;
+      min-height: 22px;
+      text-align: center;
+    }
+
+    /* =========================
+       PREMIUM
+    ========================= */
+
+    .plans {
+      width: 100%;
     }
 
     .plan {
-      width: 100%;
+      min-height: 135px;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 15px 4px;
-      border: 0;
-      border-bottom: 1px solid #292929;
-      background: transparent;
-      color: #fff;
+
+      border-bottom: 2px solid #252525;
+
+      padding: 22px 8px;
+
       cursor: pointer;
-      text-align: left;
+
+      transition: background 0.15s ease;
     }
 
     .plan:last-child {
-      border-bottom: 0;
+      border-bottom: none;
+      padding-bottom: 5px;
     }
 
     .plan:hover {
-      background: #181818;
+      background: rgba(255,255,255,0.025);
     }
 
-    .plan:active {
-      background: #222;
+    .plan-left {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
     .plan-name {
-      font-size: 17px;
+      font-size: 32px;
       font-weight: 900;
     }
 
-    .plan-duration {
-      margin-top: 4px;
-      color: #777;
-      font-size: 13px;
+    .plan-description {
+      color: #666;
+      font-size: 24px;
     }
 
     .plan-price {
-      font-size: 19px;
+      font-size: 35px;
       font-weight: 900;
       white-space: nowrap;
     }
 
-    /* ================= HERO ================= */
+    /* =========================
+       PATCH HERO
+    ========================= */
 
-    .hero {
-      margin: 30px 0 20px;
+    .patch-intro {
+      padding: 55px 0 35px;
     }
 
     .eyebrow {
       color: #777;
-      font-size: 12px;
+      font-size: 20px;
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 5px;
+      margin-bottom: 20px;
     }
 
-    .hero h1 {
-      margin: 12px 0;
-      font-size: clamp(43px, 10vw, 78px);
-      line-height: .95;
-      letter-spacing: -4px;
+    .hero-title {
+      font-size: clamp(58px, 10vw, 105px);
+      line-height: 0.82;
+      font-weight: 950;
+      letter-spacing: -5px;
     }
 
-    .hero h1 span {
-      color: #555;
+    .hero-title .gray {
+      color: #4c4c4c;
     }
 
-    .desc {
-      color: #888;
-      line-height: 1.6;
+    .hero-description {
+      margin-top: 42px;
+
+      color: #858585;
+
+      font-size: 25px;
+      line-height: 1.55;
+
+      max-width: 750px;
     }
 
-    /* ================= VIDEO CARD ================= */
+    /* =========================
+       PATCH CARD
+    ========================= */
 
-    .card {
-      padding: 18px;
-      border: 1px solid #292929;
-      border-radius: 18px;
-      background: #111;
-    }
-
-    .dropzone {
+    .patch-card {
       width: 100%;
-      min-height: 240px;
+
+      border: 2px solid #242424;
+      border-radius: 34px;
+
+      background: #101010;
+
+      padding: 36px;
+
+      margin-bottom: 80px;
+    }
+
+    /* =========================
+       VIDEO SELECT
+    ========================= */
+
+    .video-input {
+      display: none;
+    }
+
+    .video-select {
+      width: 100%;
+      min-height: 410px;
+
+      border: 2px dashed #383838;
+      border-radius: 30px;
+
+      background: #080808;
+
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      border: 1px dashed #444;
-      border-radius: 17px;
-      background: #090909;
-      color: #fff;
+
+      text-align: center;
+
       cursor: pointer;
+
+      transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
     }
 
-    .dropzone:hover {
-      border-color: #777;
+    .video-select:hover {
+      border-color: #666;
+      background: #0d0d0d;
     }
 
     .upload-icon {
-      font-size: 45px;
-      color: #aaa;
+      font-size: 78px;
+      color: #999;
+      line-height: 1;
+      margin-bottom: 28px;
     }
 
-    .dropzone strong {
-      font-size: 20px;
+    .select-title {
+      font-size: 34px;
+      font-weight: 900;
     }
 
-    .dropzone span {
-      color: #777;
-      font-size: 13px;
-      text-align: center;
-    }
-
-    /* ================= FILE ================= */
-
-    .file-panel {
+    .select-subtitle {
       margin-top: 14px;
-      padding: 12px;
-      border: 1px solid #292929;
-      border-radius: 15px;
-    }
-
-    .file-row {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-    }
-
-    .thumb-wrap {
-      width: 65px;
-      height: 80px;
-      overflow: hidden;
-      border-radius: 9px;
-      background: #000;
-      flex-shrink: 0;
-    }
-
-    .thumb-wrap video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .file-meta {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .file-meta strong {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .file-meta span {
-      color: #777;
-      font-size: 12px;
-    }
-
-    .icon-btn {
-      width: 40px;
-      height: 40px;
-      border: 0;
-      border-radius: 50%;
-      background: #252525;
-      color: #fff;
+      color: #666;
       font-size: 24px;
-      cursor: pointer;
-      flex-shrink: 0;
     }
 
-    /* ================= MODE ================= */
+    /* =========================
+       MODE
+    ========================= */
 
-    .settings {
-      margin-top: 18px;
-    }
+    .mode-title {
+      margin-top: 42px;
+      margin-bottom: 16px;
 
-    .setting-title {
-      margin-bottom: 8px;
       color: #777;
-      font-size: 12px;
+
+      font-size: 21px;
       font-weight: 900;
-      letter-spacing: 2px;
+
+      letter-spacing: 5px;
     }
 
-    .mode {
+    .mode-box {
+      min-height: 145px;
+
+      border: 2px solid #292929;
+      border-radius: 28px;
+
+      background: #080808;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 17px;
-      border: 1px solid #292929;
-      border-radius: 15px;
-      background: #090909;
+
+      padding: 25px 30px;
     }
 
-    .mode strong {
-      font-size: 18px;
-    }
-
-    .mode p {
-      margin: 4px 0 0;
-      color: #777;
-      font-size: 12px;
-    }
-
-    .badge {
-      padding: 10px 14px;
-      border-radius: 20px;
-      background: #fff;
-      color: #000;
+    .mode-name {
+      font-size: 30px;
       font-weight: 900;
     }
 
-    /* ================= PATCH ================= */
+    .mode-description {
+      margin-top: 6px;
 
-    .patch-btn {
-      width: 100%;
-      min-height: 58px;
-      margin-top: 17px;
-      border: 0;
-      border-radius: 15px;
+      color: #666;
+
+      font-size: 21px;
+      line-height: 1.2;
+    }
+
+    .mode-badge {
+      min-width: 90px;
+      height: 65px;
+
+      padding: 0 18px;
+
+      border-radius: 40px;
+
       background: #fff;
-      color: #000;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 900;
-    }
+      color: #080808;
 
-    .patch-btn:disabled {
-      opacity: .35;
-      cursor: not-allowed;
-    }
-
-    /* ================= SPINNER ================= */
-
-    .spinner {
-      display: inline-block;
-      width: 15px;
-      height: 15px;
-      margin-left: 8px;
-      vertical-align: middle;
-      border: 2px solid #999;
-      border-top-color: #000;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ================= PROGRESS ================= */
-
-    .progress-box {
-      margin-top: 15px;
-      padding: 15px;
-      border: 1px solid #292929;
-      border-radius: 15px;
-      background: #090909;
-    }
-
-    .progress-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 9px;
-      color: #aaa;
-      font-size: 13px;
-    }
-
-    .bar {
-      width: 100%;
-      height: 9px;
-      overflow: hidden;
-      border-radius: 20px;
-      background: #252525;
-    }
-
-    #barFill {
-      width: 0%;
-      height: 100%;
-      background: #fff;
-      transition: width .15s;
-    }
-
-    /* ================= RESULT ================= */
-
-    .result {
-      margin-top: 16px;
-      padding: 17px;
-      border: 1px solid #292929;
-      border-radius: 16px;
-      background: #090909;
-    }
-
-    .result-top {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .result-icon {
-      width: 45px;
-      height: 45px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      background: #fff;
-      color: #000;
+
       font-size: 22px;
       font-weight: 900;
-      flex-shrink: 0;
     }
 
-    .result-text {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
+    /* =========================
+       PATCH BUTTON
+    ========================= */
 
-    .result-text strong {
-      font-size: 17px;
-    }
-
-    .result-text span {
-      color: #777;
-      font-size: 12px;
-    }
-
-    /* ================= DOWNLOAD ================= */
-
-    .download-btn {
+    .patch-btn {
       width: 100%;
-      min-height: 55px;
-      margin-top: 15px;
-      border: 0;
-      border-radius: 14px;
-      background: #fff;
-      color: #000;
-      cursor: pointer;
+      height: 100px;
+
+      margin-top: 35px;
+
+      border: none;
+      border-radius: 25px;
+
+      background: #666;
+      color: #080808;
+
+      font-size: 28px;
       font-weight: 900;
+
+      cursor: pointer;
+
+      transition: 0.2s ease;
     }
 
-    .download-btn:disabled {
-      opacity: .5;
+    .patch-btn:hover {
+      background: #fff;
+    }
+
+    .patch-btn:disabled {
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
-    .download-progress {
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid #292929;
-      border-radius: 14px;
-      background: #111;
-    }
+    /* =========================
+       SELECTED FILE
+    ========================= */
 
-    .download-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-      color: #aaa;
-      font-size: 13px;
-    }
+    #fileName {
+      display: none;
 
-    .download-track {
-      width: 100%;
-      height: 8px;
-      overflow: hidden;
-      border-radius: 20px;
-      background: #292929;
-    }
-
-    #downloadBarFill {
-      width: 0%;
-      height: 100%;
-      background: #fff;
-      transition: width .1s;
-    }
-
-    #downloadDone {
-      margin-top: 7px;
-      color: #777;
-      font-size: 12px;
-    }
-
-    /* ================= TIKTOK ================= */
-
-    .tiktok-btn {
-      width: 100%;
-      min-height: 55px;
-      margin-top: 10px;
-      border: 1px solid #444;
-      border-radius: 14px;
-      background: #181818;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 900;
-    }
-
-    .tiktok-btn:hover {
-      background: #242424;
-    }
-
-    /* ================= ERROR ================= */
-
-    .error {
-      margin-top: 14px;
-      padding: 12px;
-      border-radius: 11px;
-      background: #281414;
-      color: #ff9c9c;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    /* ================= NOTES ================= */
-
-    .notes {
-      display: grid;
-      gap: 10px;
       margin-top: 18px;
-    }
 
-    .notes > div {
-      padding: 17px;
-      border: 1px solid #292929;
-      border-radius: 15px;
-      background: #111;
-    }
+      color: #aaa;
 
-    .notes b {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 12px;
-      letter-spacing: 2px;
-    }
-
-    .notes span {
-      color: #777;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    footer {
-      margin-top: 30px;
-      color: #555;
+      font-size: 18px;
       text-align: center;
-      font-size: 11px;
     }
+
+    /* =========================
+       MOBILE
+    ========================= */
 
     @media (max-width: 600px) {
-      .privacy {
-        display: none;
+
+      .top {
+        padding: 32px 30px 22px;
       }
 
-      .account-info {
-        align-items: flex-start;
-        flex-direction: column;
+      .brand {
+        gap: 20px;
       }
 
-      .logout-btn {
-        width: 100%;
+      .logo {
+        width: 106px;
+        height: 106px;
+        border-radius: 28px;
+        font-size: 47px;
       }
 
-      .auth-actions {
-        flex-direction: column;
+      .brand-title {
+        font-size: 43px;
       }
 
-      .hero h1 {
-        font-size: 50px;
+      .brand-subtitle {
+        font-size: 23px;
+      }
+
+      .container {
+        width: calc(100% - 60px);
+      }
+
+      .card {
+        padding: 36px;
+        border-radius: 34px;
+      }
+
+      .card-title {
+        font-size: 38px;
+      }
+
+      .input {
+        height: 93px;
+        font-size: 26px;
+      }
+
+      .btn {
+        height: 96px;
+        font-size: 27px;
+      }
+
+      .plan {
+        min-height: 135px;
+      }
+
+      .plan-name {
+        font-size: 31px;
+      }
+
+      .plan-description {
+        font-size: 23px;
+      }
+
+      .plan-price {
+        font-size: 34px;
+      }
+
+      .patch-intro {
+        padding-top: 30px;
+      }
+
+      .hero-title {
+        font-size: 72px;
+      }
+
+      .hero-description {
+        font-size: 23px;
+      }
+
+      .patch-card {
+        padding: 36px;
+      }
+
+      .video-select {
+        min-height: 460px;
+      }
+
+      .select-title {
+        font-size: 32px;
+      }
+
+      .select-subtitle {
+        font-size: 22px;
+      }
+
+      .mode-box {
+        padding: 25px 28px;
+      }
+
+      .mode-name {
+        font-size: 28px;
+      }
+
+      .mode-description {
+        font-size: 20px;
+      }
+    }
+
+    /* =========================
+       VERY SMALL PHONE
+    ========================= */
+
+    @media (max-width: 390px) {
+
+      .container {
+        width: calc(100% - 36px);
+      }
+
+      .top {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .logo {
+        width: 85px;
+        height: 85px;
+        font-size: 38px;
+      }
+
+      .brand-title {
+        font-size: 34px;
+      }
+
+      .brand-subtitle {
+        font-size: 18px;
+      }
+
+      .card,
+      .patch-card {
+        padding: 25px;
+        border-radius: 27px;
+      }
+
+      .card-title {
+        font-size: 31px;
+      }
+
+      .input {
+        height: 78px;
+        font-size: 22px;
+      }
+
+      .btn {
+        height: 80px;
+        font-size: 23px;
+      }
+
+      .plan-name {
+        font-size: 25px;
+      }
+
+      .plan-description {
+        font-size: 18px;
+      }
+
+      .plan-price {
+        font-size: 28px;
+      }
+
+      .hero-title {
+        font-size: 57px;
+      }
+
+      .hero-description {
+        font-size: 20px;
+      }
+
+      .video-select {
+        min-height: 350px;
+      }
+
+      .upload-icon {
+        font-size: 60px;
+      }
+
+      .select-title {
+        font-size: 27px;
+      }
+
+      .select-subtitle {
+        font-size: 18px;
+      }
+
+      .mode-box {
+        padding: 20px;
+      }
+
+      .mode-name {
+        font-size: 24px;
+      }
+
+      .mode-description {
+        font-size: 17px;
+      }
+
+      .mode-badge {
+        min-width: 75px;
+        height: 55px;
+        font-size: 18px;
       }
     }
   </style>
@@ -706,65 +716,67 @@
 
 <body>
 
-<main class="app">
+  <div class="page">
 
-  <!-- HEADER -->
+    <!-- =========================
+         BRAND
+    ========================== -->
 
-  <header class="topbar">
+    <header class="top">
 
-    <div class="brand">
+      <div class="brand">
 
-      <div class="logo">
-        TL
-      </div>
-
-      <div>
-        <div class="brand-name">
-          TL NoBlur
+        <div class="logo">
+          TL
         </div>
 
-        <div class="brand-sub">
-          Video Quality Patcher
+        <div>
+          <div class="brand-title">
+            TL NoBlur
+          </div>
+
+          <div class="brand-subtitle">
+            Video Quality Patcher
+          </div>
         </div>
+
       </div>
 
-    </div>
-
-    <span class="privacy">
-      ● 100% LOCAL
-    </span>
-
-  </header>
+    </header>
 
 
-  <!-- LOGIN / ACCOUNT -->
+    <main class="container">
 
-  <section class="auth-card">
 
-    <div id="loginBox">
+      <!-- =========================
+           ACCOUNT
+      ========================== -->
 
-      <div class="auth-title">
-        TL NoBlur Account
-      </div>
+      <section class="card">
 
-      <input
-        id="authEmail"
-        type="email"
-        placeholder="Email"
-        autocomplete="email"
-      >
+        <h2 class="card-title">
+          TL NoBlur Account
+        </h2>
 
-      <input
-        id="authPassword"
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      >
+        <input
+          id="email"
+          class="input"
+          type="email"
+          placeholder="Email"
+          autocomplete="email"
+        />
 
-      <div class="auth-actions">
+        <input
+          id="password"
+          class="input"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+        />
 
         <button
-          id="signUpBtn"
+          id="signupBtn"
+          class="btn btn-signup"
           type="button"
         >
           SIGN UP
@@ -772,465 +784,384 @@
 
         <button
           id="loginBtn"
+          class="btn btn-login"
           type="button"
         >
           LOGIN
         </button>
 
-      </div>
+        <div id="authStatus"></div>
 
-      <p
-        id="authStatus"
-        class="auth-status"
-      ></p>
-
-    </div>
+      </section>
 
 
-    <div
-      id="accountBox"
-      class="hidden"
-    >
+      <!-- =========================
+           PREMIUM
+      ========================== -->
 
-      <div class="account-info">
+      <section class="card">
 
-        <div>
+        <h2 class="card-title">
+          TL NoBlur Premium
+        </h2>
 
-          <div
-            id="accountEmail"
-            class="account-email"
-          >
-            —
-          </div>
+        <p class="card-subtitle">
+          Choose your access plan
+        </p>
+
+
+        <div class="plans">
+
+          <!-- FREE -->
 
           <div
-            id="premiumStatus"
-            class="premium-status"
+            class="plan"
+            data-plan="free"
+            data-price="0"
           >
-            Checking access...
+
+            <div class="plan-left">
+
+              <div class="plan-name">
+                🆓 Free
+              </div>
+
+              <div class="plan-description">
+                2 Days
+              </div>
+
+            </div>
+
+            <div class="plan-price">
+              FREE
+            </div>
+
+          </div>
+
+
+          <!-- 1 WEEK -->
+
+          <div
+            class="plan"
+            data-plan="1week"
+            data-price="2"
+          >
+
+            <div class="plan-left">
+
+              <div class="plan-name">
+                ⭐ 1 Week
+              </div>
+
+              <div class="plan-description">
+                Premium access
+              </div>
+
+            </div>
+
+            <div class="plan-price">
+              $2
+            </div>
+
+          </div>
+
+
+          <!-- 1 MONTH -->
+
+          <div
+            class="plan"
+            data-plan="1month"
+            data-price="5"
+          >
+
+            <div class="plan-left">
+
+              <div class="plan-name">
+                🔥 1 Month
+              </div>
+
+              <div class="plan-description">
+                Premium access
+              </div>
+
+            </div>
+
+            <div class="plan-price">
+              $5
+            </div>
+
+          </div>
+
+
+          <!-- 3 MONTHS -->
+
+          <div
+            class="plan"
+            data-plan="3months"
+            data-price="9"
+          >
+
+            <div class="plan-left">
+
+              <div class="plan-name">
+                💎 3 Months
+              </div>
+
+              <div class="plan-description">
+                Premium access
+              </div>
+
+            </div>
+
+            <div class="plan-price">
+              $9
+            </div>
+
+          </div>
+
+
+          <!-- 6 MONTHS -->
+
+          <div
+            class="plan"
+            data-plan="6months"
+            data-price="19"
+          >
+
+            <div class="plan-left">
+
+              <div class="plan-name">
+                👑 6 Months
+              </div>
+
+              <div class="plan-description">
+                Premium access
+              </div>
+
+            </div>
+
+            <div class="plan-price">
+              $19
+            </div>
+
+          </div>
+
+
+          <!-- 1 YEAR -->
+
+          <div
+            class="plan"
+            data-plan="1year"
+            data-price="29"
+          >
+
+            <div class="plan-left">
+
+              <div class="plan-name">
+                🏆 1 Year
+              </div>
+
+              <div class="plan-description">
+                Premium access
+              </div>
+
+            </div>
+
+            <div class="plan-price">
+              $29
+            </div>
+
           </div>
 
         </div>
 
-        <button
-          id="logoutBtn"
-          class="logout-btn"
-          type="button"
+      </section>
+
+
+      <!-- =========================
+           PATCH INTRO
+      ========================== -->
+
+      <section class="patch-intro">
+
+        <div class="eyebrow">
+          INFLATE / NON-INTERPOLATION
+        </div>
+
+        <h1 class="hero-title">
+          Patch your<br />
+
+          <span>
+            video.
+          </span>
+
+          <br />
+
+          <span class="gray">
+            Keep the<br />
+            original stream.
+          </span>
+        </h1>
+
+        <p class="hero-description">
+          MP4/MOV processing happens inside your
+          browser. The video file stays on your device.
+        </p>
+
+      </section>
+
+
+      <!-- =========================
+           PATCH TOOL
+      ========================== -->
+
+      <section class="patch-card">
+
+
+        <!-- VIDEO INPUT -->
+
+        <input
+          id="videoInput"
+          class="video-input"
+          type="file"
+          accept="video/mp4,video/quicktime,.mp4,.mov"
+        />
+
+
+        <label
+          for="videoInput"
+          class="video-select"
+          id="videoSelect"
         >
-          LOGOUT
-        </button>
 
-      </div>
+          <div class="upload-icon">
+            ↑
+          </div>
 
-    </div>
+          <div class="select-title">
+            SELECT VIDEO
+          </div>
 
-  </section>
+          <div class="select-subtitle">
+            MP4 / MOV · H.264 / H.265
+          </div>
 
-
-  <!-- PREMIUM PLANS -->
-
-  <section class="premium-card">
-
-    <div class="premium-title">
-      TL NoBlur Premium
-    </div>
-
-    <div class="premium-sub">
-      Choose your access plan
-    </div>
+        </label>
 
 
-    <button
-      class="plan"
-      type="button"
-      data-plan="free"
-    >
+        <div id="fileName"></div>
 
-      <div>
-        <div class="plan-name">
-          🆓 Free
+
+        <!-- MODE -->
+
+        <div class="mode-title">
+          MODE
         </div>
 
-        <div class="plan-duration">
-          2 Days
-        </div>
-      </div>
 
-      <div class="plan-price">
-        FREE
-      </div>
+        <div class="mode-box">
 
-    </button>
+          <div>
 
+            <div class="mode-name">
+              Inflate
+            </div>
 
-    <button
-      class="plan"
-      type="button"
-      data-plan="week"
-    >
+            <div class="mode-description">
+              Non-interpolation · no video re-encode
+            </div>
 
-      <div>
-        <div class="plan-name">
-          ⭐ 1 Week
-        </div>
+          </div>
 
-        <div class="plan-duration">
-          Premium access
-        </div>
-      </div>
-
-      <div class="plan-price">
-        $2
-      </div>
-
-    </button>
-
-
-    <button
-      class="plan"
-      type="button"
-      data-plan="month"
-    >
-
-      <div>
-        <div class="plan-name">
-          🔥 1 Month
-        </div>
-
-        <div class="plan-duration">
-          Premium access
-        </div>
-      </div>
-
-      <div class="plan-price">
-        $5
-      </div>
-
-    </button>
-
-
-    <button
-      class="plan"
-      type="button"
-      data-plan="three_month"
-    >
-
-      <div>
-        <div class="plan-name">
-          💎 3 Months
-        </div>
-
-        <div class="plan-duration">
-          Premium access
-        </div>
-      </div>
-
-      <div class="plan-price">
-        $9
-      </div>
-
-    </button>
-
-
-    <button
-      class="plan"
-      type="button"
-      data-plan="six_month"
-    >
-
-      <div>
-        <div class="plan-name">
-          👑 6 Months
-        </div>
-
-        <div class="plan-duration">
-          Premium access
-        </div>
-      </div>
-
-      <div class="plan-price">
-        $19
-      </div>
-
-    </button>
-
-
-    <button
-      class="plan"
-      type="button"
-      data-plan="year"
-    >
-
-      <div>
-        <div class="plan-name">
-          🏆 1 Year
-        </div>
-
-        <div class="plan-duration">
-          Premium access
-        </div>
-      </div>
-
-      <div class="plan-price">
-        $29
-      </div>
-
-    </button>
-
-  </section>
-
-
-  <!-- HERO -->
-
-  <section class="hero">
-
-    <p class="eyebrow">
-      INFLATE / NON-INTERPOLATION
-    </p>
-
-    <h1>
-      Patch your video.<br>
-      <span>
-        Keep the original stream.
-      </span>
-    </h1>
-
-    <p class="desc">
-      MP4/MOV processing happens inside your browser.
-      The video file stays on your device.
-    </p>
-
-  </section>
-
-
-  <!-- VIDEO CARD -->
-
-  <section class="card">
-
-    <input
-      id="fileInput"
-      type="file"
-      accept="video/mp4,video/quicktime,.mp4,.mov"
-      hidden
-    >
-
-
-    <!-- SELECT VIDEO -->
-
-    <button
-      id="pickBtn"
-      class="dropzone"
-      type="button"
-    >
-
-      <div class="upload-icon">
-        ↑
-      </div>
-
-      <strong>
-        SELECT VIDEO
-      </strong>
-
-      <span>
-        MP4 / MOV • H.264 / H.265
-      </span>
-
-    </button>
-
-
-    <!-- FILE -->
-
-    <div
-      id="filePanel"
-      class="file-panel hidden"
-    >
-
-      <div class="file-row">
-
-        <div class="thumb-wrap">
-
-          <video
-            id="preview"
-            muted
-            playsinline
-          ></video>
+          <div class="mode-badge">
+            10×
+          </div>
 
         </div>
 
-        <div class="file-meta">
 
-          <strong id="fileName">
-            —
-          </strong>
-
-          <span id="fileStats">
-            —
-          </span>
-
-          <span id="fileSize">
-            —
-          </span>
-
-        </div>
+        <!-- PATCH BUTTON -->
 
         <button
-          id="removeBtn"
-          class="icon-btn"
+          id="patchBtn"
+          class="patch-btn"
           type="button"
-          aria-label="Remove video"
+          disabled
         >
-          ×
+          LOGIN TO PATCH
         </button>
 
-      </div>
 
-    </div>
+      </section>
 
+    </main>
 
-    <!-- MODE -->
-
-    <div class="settings">
-
-      <div class="setting-title">
-        MODE
-      </div>
-
-      <div class="mode">
-
-        <div>
-
-          <strong>
-            Inflate
-          </strong>
-
-          <p>
-            Non-interpolation • no video re-encode
-          </p>
-
-        </div>
-
-        <span class="badge">
-          10×
-        </span>
-
-      </div>
-
-    </div>
+  </div>
 
 
-    <!-- PATCH BUTTON -->
+  <!-- =========================
+       BASIC HTML JS
+       App.js will handle real logic
+  ========================== -->
 
-    <button
-      id="processBtn"
-      class="patch-btn"
-      type="button"
-      disabled
-    >
+  <script>
 
-      <span id="processText">
-        LOGIN TO PATCH
-      </span>
+    const videoInput = document.getElementById("videoInput");
+    const fileName = document.getElementById("fileName");
+    const patchBtn = document.getElementById("patchBtn");
 
-      <span
-        id="spinner"
-        class="spinner hidden"
-      ></span>
+    videoInput.addEventListener("change", () => {
 
-    </button>
+      const file = videoInput.files[0];
 
+      if (!file) {
+        fileName.style.display = "none";
+        fileName.textContent = "";
+        return;
+      }
 
-    <!-- PATCH PROGRESS -->
+      fileName.style.display = "block";
+      fileName.textContent =
+        "Selected: " + file.name;
 
-    <div
-      id="progressBox"
-      class="progress-box hidden"
-    >
-
-      <div class="progress-head">
-
-        <span id="status">
-          Preparing...
-        </span>
-
-        <span id="percent">
-          0%
-        </span>
-
-      </div>
-
-      <div class="bar">
-        <div id="barFill"></div>
-      </div>
-
-    </div>
+    });
 
 
-    <!-- RESULT -->
+    // Premium plan click
+    document.querySelectorAll(".plan").forEach(plan => {
 
-    <div
-      id="result"
-      class="result hidden"
-    >
+      plan.addEventListener("click", () => {
 
-      <div class="result-top">
+        const selectedPlan = plan.dataset.plan;
+        const price = plan.dataset.price;
 
-        <div class="result-icon">
-          ✓
-        </div>
+        console.log(
+          "Selected plan:",
+          selectedPlan,
+          "Price:",
+          price
+        );
 
-        <div class="result-text">
+      });
 
-          <strong>
-            Patch Complete
-          </strong>
+    });
 
-          <span id="resultMeta">
-            Video is ready
-          </span>
-
-        </div>
-
-      </div>
+  </script>
 
 
-      <!-- DOWNLOAD BUTTON -->
+  <!--
+    IMPORTANT:
 
-      <button
-        id="downloadBtn"
-        class="download-btn"
-        type="button"
-      >
-        DOWNLOAD VIDEO
-      </button>
+    Keep your real application logic inside:
 
+    app.js
 
-      <!-- DOWNLOAD PROGRESS -->
+    Example:
 
-      <div
-        id="downloadProgress"
-        class="download-progress hidden"
-      >
+    <script type="module" src="./app.js"></script>
 
-        <div class="download-head">
+    Add it here when your app.js is ready.
+  -->
 
-          <span id="downloadStatus">
-            Preparing download...
-          </span>
-
-          <span id="downloadPercent">
-            0%
-          </span>
-
-        </div>
-
-        <div class="download-track">
-
-          <div id="downloadBarFill"></div>
-
-        </div>
-
-        <div id="downloadDone">
-          Preparing video...
-        </div>
-
-   
+</body>
+</html>
